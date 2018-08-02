@@ -22,7 +22,7 @@ class UserService
 
     public function login($request)
     {
-        $user = User::where('email', $request->email)->orWhere('name', $request->email)->first();
+        $user = User::where('email', $request->userName)->orWhere('name', $request->userName)->first();
         if ($user && Hash::check($request->get('password'), $user->password)) {
             $token = JWTAuth::fromUser($user);
             $this->clearLoginAttempts($request);
@@ -31,7 +31,7 @@ class UserService
                 'message' => 'User Authenticated'
             ]);
         }
-        return $this->response->errorUnauthorized('Bad Credentials');
+        return $this->response->errorBadRequest('用户名或密码不正确');
     }
 
     public function logout()
