@@ -10,9 +10,14 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+//这句接管路由
 $api = app('Dingo\Api\Routing\Router');
+
 $api->version('v1', function ($api) {
-   $api->get('/', function() {
-      return ['11', '22'];
-  });
+    $api->post('login', 'App\Http\Api\Auth\LoginController@login');
+    $api->post('register', 'App\Http\Api\Auth\RegisterController@register');
+    $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->get('user', 'App\Http\Api\UsersController@index');
+    });
 });
