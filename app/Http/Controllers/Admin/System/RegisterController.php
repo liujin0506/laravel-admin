@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Api\Auth;
+namespace App\Http\Controllers\Admin\System;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use Dingo\Api\Exception\StoreResourceFailedException;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -28,14 +28,13 @@ class RegisterController extends Controller
         if($user->save()){
 
             $token = JWTAuth::fromUser($user);
-
             return $this->response->array([
                 "token" => $token,
                 "message" => "User created",
                 "status_code" => 201
             ]);
         }else{
-            return $this->response->error("User Not Found...", 404);
+            return $this->response->errorNotFound("User Not Found...");
         }
     }
 

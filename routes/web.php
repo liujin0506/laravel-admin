@@ -11,13 +11,18 @@
 |
 */
 
-//这句接管路由
-$api = app('Dingo\Api\Routing\Router');
+const AdminName = 'App\Http\Controllers\Admin\\';
 
+$api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
-    $api->post('login', 'App\Http\Api\Auth\LoginController@login');
-    $api->post('register', 'App\Http\Api\Auth\RegisterController@register');
-    $api->group(['middleware' => 'api.auth'], function ($api) {
-        $api->get('user', 'App\Http\Api\UsersController@index');
+    $api->group(['prefix' => 'system'], function ($api) {
+        $api->post('login', AdminName . 'System\LoginController@login');
+        $api->post('register', AdminName . 'System\RegisterController@register');
+    });
+
+
+    $api->group(['middleware' => 'api.auth', 'prefix' => 'system'], function ($api) {
+        $api->get('user', AdminName . 'System\UsersController@index');
+        $api->post('refresh', AdminName . 'System\UsersController@refresh');
     });
 });

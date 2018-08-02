@@ -7,22 +7,20 @@
  * @CopyRight   Beijing CmsTop Technology Co.,Ltd.
  */
 
-namespace App\Http\Api;
+namespace App\Http\Controllers\Admin\System;
 
-use Dingo\Api\Routing\Helpers;
+use App\Http\Services\UserService;
 use Illuminate\Routing\Controller;
 
 class UsersController extends Controller
 {
-    use Helpers;
-
-    public function __construct()
+    public function index(UserService $service)
     {
-        $this->middleware('api.auth');
+        return $service->index();
     }
-    public function index(){
-        $user = $this->auth->user();
 
-        return $user;
+    public function refresh(UserService $service)
+    {
+        return $service->refresh();
     }
 }
