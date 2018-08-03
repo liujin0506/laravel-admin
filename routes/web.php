@@ -25,5 +25,7 @@ $api->version('v1', function ($api) {
         $api->post('logout', AdminName . 'System\LoginController@logout');
         $api->get('user', AdminName . 'System\UsersController@index');
         $api->post('refresh', AdminName . 'System\UsersController@refresh');
+
+        $api->resource('aca', AdminName . 'System\AcaController');
     });
 });

@@ -22,7 +22,7 @@ class UserService
 
     public function login($request)
     {
-        $user = User::where('email', $request->userName)->orWhere('name', $request->userName)->first();
+        $user = User::where('email', $request->username)->orWhere('name', $request->username)->first();
         if ($user && Hash::check($request->get('password'), $user->password)) {
             $token = JWTAuth::fromUser($user);
             $this->clearLoginAttempts($request);
@@ -42,6 +42,7 @@ class UserService
     public function index()
     {
         $user = $this->auth->user();
+        $user['roles'] = ['admin'];
         return $user;
     }
 
