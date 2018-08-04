@@ -36,7 +36,7 @@ class RoleAca extends Model
      * 设置角色权限
      * @param $role_id
      * @param array $acaIds
-     * @return bool
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|static[]
      */
     public function setAca($role_id, $acaIds = [])
     {
@@ -54,6 +54,6 @@ class RoleAca extends Model
             Cache::tags(['aca', 'role'])->flush();
             self::query()->insert($insert);
         }
-        return true;
+        return $this->getAca($role_id);
     }
 }

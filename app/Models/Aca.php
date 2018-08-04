@@ -8,8 +8,10 @@
  */
 
 namespace App\Models;
+use App\Library\Core\Tree;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
+use Kalnoy\Nestedset\NodeTrait;
 
 class Aca extends Model
 {
@@ -28,15 +30,35 @@ class Aca extends Model
     }
 
     /**
-     * 创建或更新
+     * 获取树形菜单
+     * @return array
+     */
+    public function tree()
+    {
+        $data = $this->lists()->toArray();
+        return Tree::listToTree($data, 'id', 'parent_id');
+    }
+
+    /**
+     * 创建
      * @param $params
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|int
      */
-    public function createOrUpdate($params)
+    public function add($params)
     {
-        $id = data_get($params, 'id');
         $params = array_only($params, $this->fillable);
-        $res = self::query()->updateOrCreate(['id' => $id], $params);
+        $res = self::query()->create($params);
+        if ($res) {
+            // 删除权限缓存
+            Cache::tags('aca')->flush();
+        }
+        return $res;
+    }
+
+    public function edit($id, $params)
+    {
+        $params = array_only($params, $this->fillable);
+        $res = self::query()->where(['id' => $id])->update($params);
         if ($res) {
             // 删除权限缓存
             Cache::tags('aca')->flush();

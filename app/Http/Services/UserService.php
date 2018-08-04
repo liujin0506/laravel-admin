@@ -10,15 +10,21 @@
 namespace App\Http\Services;
 
 use App\Models\User;
+use App\Models\UserRole;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 
-class UserService
+class UserService extends BaseService
 {
-    use Helpers;
     use AuthenticatesUsers;
+
+    public function index($params)
+    {
+        $model = new User();
+        return $model->lists($params);
+    }
 
     public function login($request)
     {
@@ -39,7 +45,7 @@ class UserService
         return $this->guard()->logout();
     }
 
-    public function index()
+    public function detail()
     {
         $user = $this->auth->user();
         $user['roles'] = ['admin'];
@@ -55,5 +61,38 @@ class UserService
             'token' => $new_token,
             'status_code' => 201
         ]);
+    }
+
+    /**
+     * 获取管理员角色
+     * @param $custom_id
+     * @return mixed
+     */
+    public function getRoles($custom_id)
+    {
+        $model = new UserRole();
+        return $model->getRoles($custom_id);
+    }
+
+    /**
+     * 设置管理员角色
+     * @param $custom_id
+     * @param array $roleIds
+     * @return mixed|void
+     */
+    public function setRoles($custom_id, $roleIds = [])
+    {
+        $model = new UserRole();
+        if (empty($roleIds)) {
+            return $this->response->errorBadRequest('角色不能为空');
+        } else {
+            $model->setRoles($custom_id, $roleIds);
+            return $this->getRoles($custom_id);
+        }
+    }
+
+    public function changePassword($id, $params)
+    {
+        return $params;
     }
 }

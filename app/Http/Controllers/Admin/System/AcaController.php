@@ -15,19 +15,25 @@ use Illuminate\Http\Request;
 
 class AcaController extends Controller
 {
+    public function index(AcaService $service)
+    {
+        return $service->index();
+    }
+
     public function store(Request $request, AcaService $service)
     {
         $params = $request->all();
         return $service->store($params);
     }
 
-    public function index(AcaService $service)
+    public function update($id, Request $request, AcaService $service)
     {
-        return $service->index();
+        $params = $request->all();
+        return $service->update($id, $params);
     }
 
-    public function delete()
+    public function destroy($id, AcaService $service)
     {
-
+        return $service->destroy($id);
     }
 }

@@ -28,6 +28,26 @@ class User extends Authenticatable implements JWTSubject
         'password', 'remember_token',
     ];
 
+    public function lists($params)
+    {
+        $limit = request()->get('per_page', 20);
+        $query = self::query();
+
+        $name = data_get($params, 'name');
+        if ($name) {
+            $query->where(function ($q) use ($name) {
+                $q->where('username', 'like', '%' . addslashes($name) . '%');
+                $q->orWhere('nickname', 'like', '%' . addslashes($name) . '%');
+            });
+        }
+        $list = $query->paginate($limit);
+        $customRole = new UserRole();
+        $list->each(function ($item) use ($customRole) {
+            $item->roles = $customRole->getRolesByUserId($item->id);
+        });
+        return $list;
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

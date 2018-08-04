@@ -11,21 +11,30 @@ namespace App\Http\Services;
 
 
 use App\Models\Aca;
-use Dingo\Api\Routing\Helpers;
 
-class AcaService
+class AcaService extends BaseService
 {
-    use Helpers;
     public function index()
     {
         $model = new Aca();
-        return $model->lists();
+        return $model->tree();
     }
 
     public function store($params)
     {
         $model = new Aca();
-        $res = $model->createOrUpdate($params);
-        return $this->response->array($res);
+        return $model->add($params);
+    }
+
+    public function update($id, $params)
+    {
+        $model = new Aca();
+        return $model->edit($id, $params);
+    }
+
+    public function destroy($id)
+    {
+        $model = new Aca();
+        return $model->remove($id);
     }
 }
