@@ -28,7 +28,7 @@ class UserService extends BaseService
 
     public function login($request)
     {
-        $user = User::where('email', $request->username)->orWhere('name', $request->username)->first();
+        $user = User::where('email', $request->username)->orWhere('username', $request->username)->first();
         if ($user && Hash::check($request->get('password'), $user->password)) {
             $token = JWTAuth::fromUser($user);
             $this->clearLoginAttempts($request);
