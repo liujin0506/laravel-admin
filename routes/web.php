@@ -28,3 +28,8 @@ Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'au
     Route::get('user/{id}/role', 'UserController@get_roles');
     Route::post('user/{id}/role', 'UserController@set_roles');
 });
+
+Route::group(['prefix' => 'cms', 'namespace' => 'Cms', 'middleware' => 'auth.jwt'], function () {
+    /** 内容 */
+    Route::resource('content', 'ContentController');
+});
