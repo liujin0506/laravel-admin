@@ -11,14 +11,10 @@ namespace App\Http\Services;
 
 use App\Models\User;
 use App\Models\UserRole;
-use Dingo\Api\Routing\Helpers;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UserService extends BaseService
 {
-    use AuthenticatesUsers;
 
     public function index($params)
     {
@@ -26,41 +22,16 @@ class UserService extends BaseService
         return $model->lists($params);
     }
 
-    public function login($request)
-    {
-        $user = User::where('email', $request->username)->orWhere('username', $request->username)->first();
-        if ($user && Hash::check($request->get('password'), $user->password)) {
-            $token = JWTAuth::fromUser($user);
-            $this->clearLoginAttempts($request);
-            return $this->response->array([
-                'token' => $token,
-                'message' => 'User Authenticated'
-            ]);
-        }
-        return $this->response->errorBadRequest('用户名或密码不正确');
-    }
-
     public function logout()
     {
-        return $this->guard()->logout();
+        return auth('web')->logout();
     }
 
     public function detail()
     {
-        $user = $this->auth->user();
+        $user = auth('web')->user();
         $user['roles'] = ['admin'];
-        return $user;
-    }
-
-    public function refresh()
-    {
-        $old_token = JWTAuth::gettoken();
-        $new_token = JWTAuth::refresh($old_token); // 刷新token并返回
-        JWTAuth::invalidate($old_token); // 销毁过期token
-        return $this->response->array([
-            'token' => $new_token,
-            'status_code' => 201
-        ]);
+        return $this->response->array($user);
     }
 
     /**
@@ -84,7 +55,7 @@ class UserService extends BaseService
     {
         $model = new UserRole();
         if (empty($roleIds)) {
-            return $this->response->errorBadRequest('角色不能为空');
+            throw new BadRequestHttpException('角色不能为空');
         } else {
             $model->setRoles($custom_id, $roleIds);
             return $this->getRoles($custom_id);

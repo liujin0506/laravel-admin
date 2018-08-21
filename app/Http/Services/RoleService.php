@@ -11,6 +11,7 @@ namespace App\Http\Services;
 use App\Models\Role;
 use App\Models\RoleAca;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RoleService extends BaseService
 {
@@ -26,7 +27,7 @@ class RoleService extends BaseService
             Cache::tags('role')->flush();
             return $ret;
         } else {
-            return $this->response->errorBadRequest('角色创建失败');
+            throw new BadRequestHttpException('角色创建失败');
         }
 
     }
@@ -37,7 +38,7 @@ class RoleService extends BaseService
             Cache::tags('role')->flush();
             return $ret;
         } else {
-            return $this->response->errorBadRequest('角色更新失败');
+            throw new BadRequestHttpException('角色更新失败');
         }
     }
 
@@ -47,7 +48,7 @@ class RoleService extends BaseService
             Cache::tags('role')->flush();
             return $ret;
         } else {
-            return $this->response->errorBadRequest('角色删除失败');
+            throw new BadRequestHttpException('角色删除失败');
         }
     }
 
@@ -66,13 +67,13 @@ class RoleService extends BaseService
      * 设置角色权限
      * @param $id
      * @param array $acaIds
-     * @return mixed
+     * @return RoleAca[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
      */
     public function setAca($id, $acaIds = [])
     {
         $model = new RoleAca();
         if (empty($acaIds)) {
-            return $this->response->errorBadRequest('权限集不能为空');
+            throw new BadRequestHttpException('权限集不能为空');
         } else {
             return $model->setAca($id, $acaIds);
         }

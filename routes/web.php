@@ -1,42 +1,30 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+/**
+ * 后台相关的路由
+ */
+use Illuminate\Support\Facades\Route;
 
-const NAME = 'App\Http\Controllers\Admin\\';
+Route::group(['prefix' => 'system', 'namespace' => 'System'], function () {
+    Route::post('login', 'LoginController@login');
+    Route::post('register', 'RegisterController@register');
+});
 
-$api = app('Dingo\Api\Routing\Router');
-$api->version('v1', function ($api) {
-    $api->group(['prefix' => 'system'], function ($api) {
-        $api->post('login', NAME . 'System\LoginController@login');
-        $api->post('register', NAME . 'System\RegisterController@register');
-    });
+Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'auth'], function () {
+    Route::post('logout', 'LoginController@logout');
+    Route::get('user/detail', 'UserController@detail');
+    Route::post('refresh', 'UsersController@refresh');
 
-
-    $api->group(['middleware' => 'dingo_auth', 'prefix' => 'system'], function ($api) {
-        $api->post('logout', NAME . 'System\LoginController@logout');
-        $api->get('user/detail', NAME . 'System\UserController@detail');
-        $api->post('refresh', NAME . 'System\UsersController@refresh');
-
-        /** 权限集 */
-        $api->resource('aca', NAME . 'System\AcaController');
-        /** 角色 */
-        $api->resource('role', NAME . 'System\RoleController');
-        $api->get('role/{id}/aca', NAME . 'System\RoleController@get_aca');
-        $api->post('role/{id}/aca', NAME . 'System\RoleController@set_aca');
-        /** 用户 */
-        $api->resource('user', NAME . 'System\UserController');
-        $api->post('user/{id}/change_status', NAME . 'System\UserController@change_status');
-        $api->post('user/{id}/change_password', NAME . 'System\UserController@change_password');
-        $api->get('user/{id}/role', NAME . 'System\UserController@get_roles');
-        $api->post('user/{id}/role', NAME . 'System\UserController@set_roles');
-    });
+    /** 权限集 */
+    Route::resource('aca', 'AcaController');
+    /** 角色 */
+    Route::resource('role', 'RoleController');
+    Route::get('role/{id}/aca', 'RoleController@get_aca');
+    Route::post('role/{id}/aca', 'RoleController@set_aca');
+    /** 用户 */
+    Route::resource('user', 'UserController');
+    Route::post('user/{id}/change_status', 'UserController@change_status');
+    Route::post('user/{id}/change_password', 'UserController@change_password');
+    Route::get('user/{id}/role', 'UserController@get_roles');
+    Route::post('user/{id}/role', 'UserController@set_roles');
 });

@@ -8,9 +8,9 @@
 
 namespace App\Http\Services;
 
-use Dingo\Api\Routing\Helpers;
+use App\Library\Helper\Response;
 
 class BaseService
 {
-    use Helpers;
+    use Response;
 }
