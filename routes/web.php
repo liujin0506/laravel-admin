@@ -10,7 +10,7 @@ Route::group(['prefix' => 'system', 'namespace' => 'System'], function () {
     Route::post('register', 'RegisterController@register');
 });
 
-Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'auth.jwt'], function () {
     Route::post('logout', 'LoginController@logout');
     Route::get('user/detail', 'UserController@detail');
     Route::post('refresh', 'UsersController@refresh');
