@@ -5,6 +5,11 @@
  */
 use Illuminate\Support\Facades\Route;
 
+Route::any('wechat', 'Wechat\WeChatController@serve');
+Route::group(['prefix' => 'wechat', 'namespace' => 'Wechat'], function () {
+    Route::get('index', 'WeChatController@index');
+});
+
 Route::group(['prefix' => 'system', 'namespace' => 'System'], function () {
     Route::post('login', 'LoginController@login');
     Route::post('register', 'RegisterController@register');
