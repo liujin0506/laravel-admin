@@ -41,6 +41,11 @@ return [
             'provider' => 'users',
         ],
 
+        'wap' => [
+            'driver' => 'jwt',
+            'provider' => 'members',
+        ],
+
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
@@ -68,6 +73,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => \App\Models\User::class,
+        ],
+
+        'members' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\Member::class,
         ],
 
         // 'users' => [

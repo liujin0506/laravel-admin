@@ -38,6 +38,15 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
+        'backend' => [
+
+        ],
+
+        'wechat' => [
+            'throttle:60,1',
+            'bindings',
+        ],
+
         'api' => [
             'throttle:60,1',
             'bindings',
@@ -61,6 +70,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'auth.jwt'=> \App\Http\Middleware\JwtAuth::class,
-        'wechat.oauth' => \Overtrue\LaravelWeChat\Middleware\OAuthAuthenticate::class,
+        'auth.wap' => \App\Http\Middleware\WapAuth::class,
     ];
 }
