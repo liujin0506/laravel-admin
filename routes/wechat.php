@@ -12,3 +12,7 @@ Route::group(['prefix' => 'member', 'namespace' => 'Member'], function () {
 Route::group(['prefix' => 'member', 'namespace' => 'Member', 'middleware' => 'auth.wap'], function () {
     Route::get('info', 'AuthController@info');
 });
+
+Route::group(['prefix' => 'goods',  'namespace' => 'Goods'], function () {
+    Route::get('lists', 'GoodsController@lists');
+});

@@ -1,0 +1,110 @@
+<?php
+/**
+ * Description  CmsTop MediaCloud
+ *
+ * @Author      liujing <liujing@cmstop.com>
+ * @DateTime    2018/8/30 18:07
+ * @CopyRight   Beijing CmsTop Technology Co.,Ltd.
+ */
+
+namespace App\Models;
+
+use App\Library\Jd\Jd;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Goods extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'sku_id',
+        'cid',
+        'cid2',
+        'cid3',
+        'cid_name',
+        'cid2_name',
+        'cid3_name',
+        'goods_name',
+        'img_url',
+        'commision_ratio_pc',
+        'commision_ratio_wl',
+        'in_order_count',
+        'is_free_freight_risk',
+        'is_free_shipping',
+        'is_jd_sale',
+        'is_seckill',
+        'material_url',
+        'shop_id',
+        'start_date',
+        'end_date',
+        'unit_price',
+        'wl_unit_price',
+        'vid',
+        'discount',
+        'coupon_list',
+        'coupon_num'
+    ];
+
+    /**
+     * 定时从接口拉取商品
+     */
+    public function syncGoods()
+    {
+        $jd = new Jd();
+        try {
+            $data = $jd->request('jingdong.union.search.queryCouponGoods', [
+                'pageIndex' => 331,
+                'pageSize' => 30
+            ], 'query_coupon_goods_result');
+            $ids = [];
+            if (!empty($data['data'])) foreach ($data['data'] as $value) {
+                array_push($ids, $value['skuId']);
+            }
+            $details = $jd->request('jingdong.service.promotion.goodsInfo', [
+                'skuIds' => implode(',', $ids)
+            ], 'getpromotioninfo_result');
+
+            $goods = isset($details['result']) ? $details['result'] : [];
+            if (!empty($goods)) foreach ($goods as &$value) {
+                foreach ($data['data'] as $v) {
+                    if ($value['skuId'] == $v['skuId']) {
+                        $value['couponList'] = isset($v['couponList']) ? $v['couponList'] : [];
+                    }
+                }
+                $discount = isset($value['couponList'][0]) ? $value['couponList'][0]['discount'] : 0;
+                $beginTime = isset($value['couponList'][0]) ? $value['couponList'][0]['beginTime'] : $value['startDate'];
+                $endTime = isset($value['couponList'][0]) ? $value['couponList'][0]['endTime'] : $value['endDate'];
+                self::query()->updateOrCreate(['sku_id' => $value['skuId']], [
+                    'cid' => $value['cid'],
+                    'cid2' => $value['cid2'],
+                    'cid3' => $value['cid3'],
+                    'cid_name' => $value['cidName'],
+                    'cid2_name' => $value['cid2Name'],
+                    'cid3_name' => $value['cid3Name'],
+                    'goods_name' => $value['goodsName'],
+                    'img_url' => $value['imgUrl'],
+                    'commision_ratio_pc' => $value['commisionRatioPc'],
+                    'commision_ratio_wl' => $value['commisionRatioWl'],
+                    'in_order_count' => $value['inOrderCount'],
+                    'is_free_freight_risk' => $value['isFreeFreightRisk'],
+                    'is_free_shipping' => $value['isFreeShipping'],
+                    'is_jd_sale' => $value['isJdSale'],
+                    'is_seckill' => $value['isSeckill'],
+                    'material_url' => $value['materialUrl'],
+                    'shop_id' => $value['shopId'],
+                    'start_date' => date('Y-m-d H:i:s', $beginTime / 1000),
+                    'end_date' => date('Y-m-d H:i:s', $endTime / 1000),
+                    'unit_price' => $value['unitPrice'],
+                    'wl_unit_price' => $value['wlUnitPrice'],
+                    'vid' => $value['cid'],
+                    'discount' => $discount,
+                    'coupon_list' => json_encode($value['couponList']),
+                    'coupon_num' => count($value['couponList']),
+                ]);
+            }
+            return $goods;
+        } catch (\Exception $e) {
+            dd($e);
+        }
+    }
+}
