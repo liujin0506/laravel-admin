@@ -48,12 +48,12 @@ class Goods extends Model
     /**
      * 定时从接口拉取商品
      */
-    public function syncGoods()
+    public function syncGoods($page = 1)
     {
         $jd = new Jd();
         try {
             $data = $jd->request('jingdong.union.search.queryCouponGoods', [
-                'pageIndex' => 331,
+                'pageIndex' => $page,
                 'pageSize' => 30
             ], 'query_coupon_goods_result');
             $ids = [];
