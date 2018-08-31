@@ -16,7 +16,7 @@ class Swiper extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['sort', 'area_id', 'title', 'link', 'status'];
+    protected $fillable = ['sort', 'area_id', 'title', 'thumb', 'link', 'status'];
 
     /**
      * 获取幻灯片列表
