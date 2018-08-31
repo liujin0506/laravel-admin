@@ -11,12 +11,14 @@ namespace App\Models;
 
 use App\Library\Jd\Jd;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use phpDocumentor\Reflection\Types\Self_;
 
 class Goods extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
+        'sort',
         'sku_id',
         'cid',
         'cid2',
@@ -44,6 +46,27 @@ class Goods extends Model
         'coupon_list',
         'coupon_num'
     ];
+
+    public function lists($params)
+    {
+        $query = self::query();
+        $per_page = data_get($params, 'per_page', 20);
+        $goods_name = data_get($params, 'goods_name', '');
+        if (!empty($goods_name)) {
+            $query->where('goods_name', 'like', '%' . trim($goods_name) . '%');
+        }
+
+        $query->orderBy('sort', 'desc');
+        $query->orderBy('id', 'desc');
+        return $query->paginate($per_page);
+    }
+
+    public function edit($id, $params)
+    {
+        $params = array_only($params, ['sort', 'is_recommend']);
+        $res = self::query()->where(['id' => $id])->update($params);
+        return $res ? self::query()->where('id', $id)->first() : [];
+    }
 
     /**
      * 定时从接口拉取商品
@@ -104,7 +127,7 @@ class Goods extends Model
             }
             return $goods;
         } catch (\Exception $e) {
-            dd($e);
+            throw new \Exception($e->getMessage());
         }
     }
 }

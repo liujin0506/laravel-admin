@@ -15,6 +15,7 @@ Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'au
     Route::get('user/detail', 'UserController@detail');
     Route::post('refresh', 'UsersController@refresh');
 
+    Route::post('upload', 'UploadController@index');
     /** 权限集 */
     Route::resource('aca', 'AcaController');
     /** 角色 */
@@ -32,4 +33,11 @@ Route::group(['prefix' => 'system', 'namespace' => 'System', 'middleware' => 'au
 Route::group(['prefix' => 'cms', 'namespace' => 'Cms', 'middleware' => 'auth.jwt'], function () {
     /** 内容 */
     Route::resource('content', 'ContentController');
+});
+
+Route::group(['prefix' => 'jd', 'namespace' => 'Jd', 'middleware' => 'auth.jwt'], function () {
+   /** 栏目 */
+   Route::resource('category', 'CategoryController');
+   Route::resource('goods', 'GoodsController');
+   Route::resource('swiper', 'SwiperController');
 });

@@ -14,7 +14,7 @@ use App\Library\Jd\Jd;
 class Category extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['id', 'name', 'grade', 'parent_id'];
+    protected $fillable = ['sort', 'name', 'grade', 'parent_id', 'is_recommend'];
 
     public function syncCategory($parent_id = 0, $grade = 0)
     {
@@ -38,5 +38,25 @@ class Category extends Model
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * 栏目列表
+     * @param int $parent_id
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function lists($params)
+    {
+        $parent_id = data_get($params, 'parent_id', 0);
+        $query = self::query();
+        $query->where('parent_id', $parent_id);
+        return $query->get();
+    }
+
+    public function edit($id, $params)
+    {
+        $params = array_only($params, $this->fillable);
+        $res = self::query()->where(['id' => $id])->update($params);
+        return $res ? self::query()->where('id', $id)->first() : [];
     }
 }
