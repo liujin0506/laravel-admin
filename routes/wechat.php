@@ -15,4 +15,5 @@ Route::group(['prefix' => 'member', 'namespace' => 'Member', 'middleware' => 'au
 
 Route::group(['prefix' => 'goods',  'namespace' => 'Goods'], function () {
     Route::get('lists', 'GoodsController@lists');
+    Route::get('detail/{id}', 'GoodsController@detail');
 });

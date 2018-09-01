@@ -10,6 +10,7 @@
 namespace App\Http\Services;
 
 use App\Models\Goods;
+use App\Models\Swiper;
 
 class GoodsService extends BaseService
 {
@@ -23,5 +24,27 @@ class GoodsService extends BaseService
     {
         $model = new Goods();
         return $model->edit($id, $params);
+    }
+
+    public function wechatIndex($params)
+    {
+        $page = data_get($params, 'page', 1);
+        $model = new Goods();
+        $lists = $model->lists($params, ['id', 'goods_name', 'img_url', 'wl_unit_price', 'discount', 'commision_ratio_wl', 'end_date'])->toArray();
+
+        // 第一页返回幻灯片信息
+        if ($page == 1) {
+            $swiperModel = new Swiper();
+            $swiper = $swiperModel->getList([], true);
+            $lists['swiper'] = $swiper;
+        }
+        return $lists;
+    }
+
+    public function detail($id)
+    {
+        $model = new Goods();
+
+        return $model->detail($id);
     }
 }

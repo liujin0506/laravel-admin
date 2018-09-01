@@ -47,7 +47,7 @@ class Goods extends Model
         'coupon_num'
     ];
 
-    public function lists($params)
+    public function lists($params, $columns = ['*'])
     {
         $query = self::query();
         $per_page = data_get($params, 'per_page', 20);
@@ -58,7 +58,23 @@ class Goods extends Model
 
         $query->orderBy('sort', 'desc');
         $query->orderBy('id', 'desc');
-        return $query->paginate($per_page);
+
+        $data = $query->paginate($per_page, $columns);
+        $data->each(function ($item) {
+            $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            $item->end_day = date('m-d', strtotime($item->end_date));
+        });
+        return $data;
+    }
+
+    public function detail($id)
+    {
+        $item = self::query()->where('id', $id)->first();
+        if ($item) {
+            $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            $item->end_day = date('m-d', strtotime($item->end_date));
+        }
+        return $item;
     }
 
     public function edit($id, $params)
