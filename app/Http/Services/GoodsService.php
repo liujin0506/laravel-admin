@@ -29,11 +29,12 @@ class GoodsService extends BaseService
     public function wechatIndex($params)
     {
         $page = data_get($params, 'page', 1);
+        $keyword = data_get($params, 'keyword', '');
         $model = new Goods();
         $lists = $model->lists($params, ['id', 'goods_name', 'img_url', 'wl_unit_price', 'discount', 'commision_ratio_wl', 'end_date'])->toArray();
 
-        // 第一页返回幻灯片信息
-        if ($page == 1) {
+        // 第一页并且不是搜索返回幻灯片信息
+        if ($page == 1 && !$keyword) {
             $swiperModel = new Swiper();
             $swiper = $swiperModel->getList([], true);
             $lists['swiper'] = $swiper;

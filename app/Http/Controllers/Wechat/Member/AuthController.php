@@ -10,6 +10,7 @@
 namespace App\Http\Controllers\Wechat\Member;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\MemberService;
 use App\Library\Helper\Response;
 use App\Models\MemberSocialite;
 use Illuminate\Http\Request;
@@ -27,10 +28,10 @@ class AuthController extends Controller
             // 调试模式
             $socialite = new MemberSocialite();
             $member = $socialite->Wechat([
-                'openid' => 'test',
-                'name' => 'test',
-                'nickname' => 'test',
-                'avatar' => '',
+                'openid' => 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs',
+                'name' => 'Jliu',
+                'nickname' => 'Jliu',
+                'avatar' => 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eqlCXm2hr8NXWf3d3XnMSAmGFxxuibM6Jd3MW6yAM94E0FORdTp8XlSUxUXUb0rRw687JwKhq8aKfw/132',
                 'email' => ''
             ]);
             $token = auth('wap')->login($member);
@@ -71,5 +72,13 @@ class AuthController extends Controller
     {
         $user_info = auth('wap')->user();
         return compact('user_info');
+    }
+
+    public function bind(Request $request, MemberService $service)
+    {
+        $user_info = auth('wap')->user();
+        $uid = $user_info['id'];
+        $union_id = $request->post('union_id');
+        return $service->bindUnionId($uid, $union_id);
     }
 }

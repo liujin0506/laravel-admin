@@ -51,11 +51,17 @@ class Goods extends Model
     {
         $query = self::query();
         $per_page = data_get($params, 'per_page', 20);
-        $goods_name = data_get($params, 'goods_name', '');
-        if (!empty($goods_name)) {
-            $query->where('goods_name', 'like', '%' . trim($goods_name) . '%');
+        $keyword = data_get($params, 'keyword', '');
+        if (!empty($keyword)) {
+            $query->where('goods_name', 'like', '%' . trim($keyword) . '%');
         }
 
+        $is_recommend = data_get($params, 'recommand', 0);
+        if ($is_recommend == 1) {
+            $query->where('is_recommend', 1);
+        }
+
+        $query->where('end_date', '>=', date('Y-m-d H:i:s'));
         $query->orderBy('sort', 'desc');
         $query->orderBy('id', 'desc');
 

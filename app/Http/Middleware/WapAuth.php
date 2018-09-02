@@ -9,26 +9,29 @@
 
 namespace App\Http\Middleware;
 
+use App\Library\Auth\MemberAuth;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
-use Tymon\JWTAuth\JWTAuth;
 
 class WapAuth extends BaseMiddleware
 {
     private $token;
 
-    public function __construct(JWTAuth $auth)
-    {
-        parent::__construct($auth);
-    }
-
     public function handle(Request $request, Closure $next)
     {
+        dd($this->auth);
+        $this->checkForToken($request);
         try {
-            Auth::guard('wap')->user();
+            // 检测用户的登录状态，如果正常则通过
+            if ($this->auth->parseToken()->authenticate()) {
+                return $next($request);
+            }
+            throw new UnauthorizedHttpException('jwt-auth', '未登录');
         } catch (\Exception $e) {
             if ($e->getMessage() == 'Token has expired') {
                 try {
@@ -41,7 +44,7 @@ class WapAuth extends BaseMiddleware
                     throw new UnauthorizedHttpException('', '请重新登陆');
                 }
             } else {
-                throw new UnauthorizedHttpException('', '请重新登陆');
+                throw new UnauthorizedHttpException('', '请重新登陆' . $e->getMessage());
             }
         }
 
