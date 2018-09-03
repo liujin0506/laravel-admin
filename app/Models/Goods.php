@@ -61,6 +61,11 @@ class Goods extends Model
             $query->where('is_recommend', 1);
         }
 
+        $category_id = data_get($params, 'category_id', 0);
+        if ($category_id > 0) {
+            $query->where('cid', $category_id);
+        }
+
         $query->where('end_date', '>=', date('Y-m-d H:i:s'));
         $query->orderBy('sort', 'desc');
         $query->orderBy('id', 'desc');

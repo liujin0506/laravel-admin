@@ -43,6 +43,8 @@ class RouteServiceProvider extends ServiceProvider
             if (config('domain.backend') === $_SERVER['HTTP_HOST']) {
                 $this->mapBackendRoutes();
             } elseif (config('domain.wechat') === $_SERVER['HTTP_HOST']) {
+                config(['auth.defaults.guard' => 'wap']);
+                config(['jwt.secret' => env('KihTyheKV66IkJz5Szx0wNV3ZPSImwzW', md5(config('domain.wechat')))]);
                 $this->mapWechatRoutes();
             } elseif (config('domain.api') === $_SERVER['HTTP_HOST']) {
                 $this->mapApiRoutes();

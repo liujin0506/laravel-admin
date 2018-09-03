@@ -11,9 +11,6 @@ namespace App\Http\Controllers\Wechat\Goods;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\GoodsService;
-use App\Library\Jd\Jd;
-use App\Models\Category;
-use App\Models\Goods;
 use Illuminate\Http\Request;
 
 class GoodsController extends Controller

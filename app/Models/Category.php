@@ -50,6 +50,12 @@ class Category extends Model
         $parent_id = data_get($params, 'parent_id', 0);
         $query = self::query();
         $query->where('parent_id', $parent_id);
+
+        $is_recommend = data_get($params, 'is_recommend', -1);
+        if ($is_recommend >= 0) {
+            $query->where('is_recommend', $is_recommend);
+        }
+        $query->orderBy('sort', 'desc');
         return $query->get();
     }
 

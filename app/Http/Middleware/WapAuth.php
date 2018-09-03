@@ -24,7 +24,6 @@ class WapAuth extends BaseMiddleware
 
     public function handle(Request $request, Closure $next)
     {
-        dd($this->auth);
         $this->checkForToken($request);
         try {
             // 检测用户的登录状态，如果正常则通过
@@ -44,7 +43,7 @@ class WapAuth extends BaseMiddleware
                     throw new UnauthorizedHttpException('', '请重新登陆');
                 }
             } else {
-                throw new UnauthorizedHttpException('', '请重新登陆' . $e->getMessage());
+                throw new UnauthorizedHttpException('', '请重新登陆');
             }
         }
 

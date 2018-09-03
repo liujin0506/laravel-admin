@@ -25,4 +25,14 @@ class CategoryService extends BaseService
         $model = new Category();
         return $model->edit($id, $params);
     }
+
+    /**
+     * 移动端菜单列表
+     * @param $params
+     */
+    public function mobile_list($params)
+    {
+        $model = new Category();
+        return $model->lists($params);
+    }
 }

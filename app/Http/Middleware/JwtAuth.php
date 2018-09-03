@@ -21,8 +21,13 @@ class JwtAuth extends BaseMiddleware
 
     public function handle(Request $request, Closure $next)
     {
+        $this->checkForToken($request);
         try {
-            Auth::guard('web')->user();
+            // 检测用户的登录状态，如果正常则通过
+            if ($this->auth->parseToken()->authenticate()) {
+                return $next($request);
+            }
+            throw new UnauthorizedHttpException('jwt-auth', '未登录');
         } catch (\Exception $e) {
             if ($e->getMessage() == 'Token has expired') {
                 try {
