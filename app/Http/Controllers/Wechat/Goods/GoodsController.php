@@ -24,4 +24,11 @@ class GoodsController extends Controller
     {
         return $service->detail($id);
     }
+
+    public function spread($id, Request $request, GoodsService $service)
+    {
+        $params = $request->all();
+        $openid = $request->attributes->get('openid');
+        return $service->spread($id, $openid, $params);
+    }
 }

@@ -28,6 +28,8 @@ class WapAuth extends BaseMiddleware
         try {
             // 检测用户的登录状态，如果正常则通过
             if ($this->auth->parseToken()->authenticate()) {
+                $openid = $this->auth->manager()->getPayloadFactory()->buildClaimsCollection()->toPlainArray()['openid'];
+                $request->attributes->add(['openid' => $openid]);
                 return $next($request);
             }
             throw new UnauthorizedHttpException('jwt-auth', '未登录');

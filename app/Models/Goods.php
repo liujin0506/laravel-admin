@@ -56,9 +56,14 @@ class Goods extends Model
             $query->where('goods_name', 'like', '%' . trim($keyword) . '%');
         }
 
-        $is_recommend = data_get($params, 'recommand', 0);
-        if ($is_recommend == 1) {
-            $query->where('is_recommend', 1);
+        $sku_id = data_get($params, 'sku_id', '');
+        if ($sku_id) {
+            $query->where('sku_id', $sku_id);
+        }
+
+        $is_recommend = data_get($params, 'is_recommend', -1);
+        if ($is_recommend >= 0) {
+            $query->where('is_recommend', $is_recommend);
         }
 
         $category_id = data_get($params, 'category_id', 0);
@@ -66,7 +71,9 @@ class Goods extends Model
             $query->where('cid', $category_id);
         }
 
-        $query->where('end_date', '>=', date('Y-m-d H:i:s'));
+        $query->where('end_date', '>', date('Y-m-d H:i:s'));
+        $query->where('coupon_num', '>', 0);
+        $query->where('discount', '>', 0);
         $query->orderBy('sort', 'desc');
         $query->orderBy('id', 'desc');
 
@@ -84,13 +91,14 @@ class Goods extends Model
         if ($item) {
             $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
             $item->end_day = date('m-d', strtotime($item->end_date));
+            $item->coupon_list = json_decode($item['coupon_list'], true);
         }
         return $item;
     }
 
     public function edit($id, $params)
     {
-        $params = array_only($params, ['sort', 'is_recommend']);
+        $params = array_only($params, ['sort', 'is_recommend', 'slogan', 'ad', 'ad_qr']);
         $res = self::query()->where(['id' => $id])->update($params);
         return $res ? self::query()->where('id', $id)->first() : [];
     }

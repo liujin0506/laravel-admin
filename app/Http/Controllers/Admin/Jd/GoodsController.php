@@ -21,6 +21,12 @@ class GoodsController extends Controller
         return $service->index($params);
     }
 
+    public function store(Request $request, GoodsService $service)
+    {
+        $params = $request->all();
+        return $service->create($params);
+    }
+
     public function update($id, Request $request, GoodsService $service)
     {
         $params = $request->all();

@@ -80,6 +80,8 @@ class Member extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'openid' => $GLOBALS['openid']
+        ];
     }
 }

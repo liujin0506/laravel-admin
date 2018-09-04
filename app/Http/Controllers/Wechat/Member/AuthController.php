@@ -34,8 +34,10 @@ class AuthController extends Controller
                 'avatar' => 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eqlCXm2hr8NXWf3d3XnMSAmGFxxuibM6Jd3MW6yAM94E0FORdTp8XlSUxUXUb0rRw687JwKhq8aKfw/132',
                 'email' => ''
             ]);
+            $GLOBALS['openid'] = 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs';
             $token = auth('wap')->login($member);
             return [
+                'openid' => 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs',
                 'token' => $token
             ];
         } else {
@@ -51,8 +53,10 @@ class AuthController extends Controller
                     'avatar' => $user->getAvatar(),
                     'email' => $user->getEmail() ?: ''
                 ]);
+                $GLOBALS['openid'] = $user->getId();
                 $token = auth('wap')->login($member);
                 return [
+                    'openid' => $user->getId(),
                     'token' => $token
                 ];
             } catch (AuthorizeFailedException $e) {
@@ -65,6 +69,7 @@ class AuthController extends Controller
     public function redirect(Request $request)
     {
         $redirect_uri = $request->get('redirect_uri');
+        $redirect_uri = explode('#', $redirect_uri)[0];
         header("Location:" . $redirect_uri . '?code=' . self::CODE);
     }
 
