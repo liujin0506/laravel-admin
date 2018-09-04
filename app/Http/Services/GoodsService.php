@@ -137,6 +137,9 @@ class GoodsService extends BaseService
                 'unionId' => $user['union_id']
             ], 'getcodebyunionid_result');
             $url = array_values($url['urlList'])[0];
+            if (!$url) {
+                $this->error('获取推广链接失败，请联系管理员');
+            }
 
             if (empty($detail['slogan'])) {
                 $message = '';
