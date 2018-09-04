@@ -9,6 +9,7 @@
 
 namespace App\Http\Services;
 
+use App\Library\Core\Common;
 use App\Library\Jd\Jd;
 use App\Models\Goods;
 use App\Models\Swiper;
@@ -20,6 +21,42 @@ class GoodsService extends BaseService
     {
         $model = new Goods();
         return $model->lists($params);
+    }
+
+    public function transLink($params, $user)
+    {
+        $link = data_get($params, 'link', '');
+        $url = Common::getLink($link);
+        if (!$url) {
+            $this->error('链接获取失败');
+            return false;
+        }
+        try {
+            $skuId = Common::getSkuId($url);
+            if (!$skuId) {
+                $this->error('链接转换失败');
+                return false;
+            }
+            $detail = Common::getDetailBySkuId($skuId);
+            $jd = new Jd();
+            $coupon_url = $this->getCouponLink($detail['coupon_list']);
+            $url_ret = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
+                'couponUrl' => $coupon_url,
+                'materialIds' => (string) $skuId,
+                'unionId' => $user['union_id']
+            ], 'getcodebyunionid_result');
+            $url_ret = array_values($url_ret['urlList'])[0];
+            if (!$url_ret) {
+                $this->error('获取推广链接失败，请联系管理员');
+            }
+            $link = str_replace($url, $url_ret, $link);
+            return [
+                'link' => $link
+            ];
+        } catch (\Exception $e) {
+            $this->error('链接转换失败');
+            return false;
+        }
     }
 
     public function create($params)

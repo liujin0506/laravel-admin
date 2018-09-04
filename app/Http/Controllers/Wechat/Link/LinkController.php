@@ -10,32 +10,21 @@
 namespace App\Http\Controllers\Wechat\Link;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\GoodsService;
+use App\Library\Core\Common;
 use App\Library\Jd\Jd;
+use GuzzleHttp\Client;
+use function GuzzleHttp\Psr7\parse_query;
 use Illuminate\Http\Request;
 
 class LinkController extends Controller
 {
-    public function trans(Request $request)
+    public function trans(Request $request, GoodsService $service)
     {
         $params = $request->all();
-        $link = data_get($params, 'link', '');
-        preg_match('/(http|https):\/\/([\w\d\-_]+[\.\w\d\-_]+)[:\d+]?([\/]?[\w\/\.]+?.*)/i', $link, $matches);
-
         $user = auth('wap')->user();
-
-//        $jd = new Jd();
-//        $data = $jd->request('jingdong.service.promotion.getcode', [
-//            'promotionType' => '7',
-//            'materialId' => $matches['0'],
-//            'unionId' => $user['union_id'],
-//            'channel' => 'WL',
-//            'webId' => '0'
-//        ], 'queryjs_result');
-        return [
-            'old' => $link,
-            'link' => $link,
-            'url' => $link
-        ];
+        $user['openid'] = $request->get('openid');
+        return $service->transLink($params, $user);
     }
 
     public function send_wechat(Request $request)
