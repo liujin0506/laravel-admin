@@ -79,7 +79,11 @@ class Goods extends Model
 
         $data = $query->paginate($per_page, $columns);
         $data->each(function ($item) {
-            $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            if ($item->wl_unit_price - $item->discount > 0) {
+                $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            } else {
+                $item->real_price = sprintf("%.2f", $item->wl_unit_price);
+            }
             $item->end_day = date('m-d', strtotime($item->end_date));
         });
         return $data;
@@ -89,7 +93,11 @@ class Goods extends Model
     {
         $item = self::query()->where('id', $id)->first();
         if ($item) {
-            $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            if ($item->wl_unit_price - $item->discount > 0) {
+                $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+            } else {
+                $item->real_price = sprintf("%.2f", $item->wl_unit_price);
+            }
             $item->end_day = date('m-d', strtotime($item->end_date));
             $item->coupon_list = json_decode($item['coupon_list'], true);
         }

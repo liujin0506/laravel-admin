@@ -169,7 +169,7 @@ class GoodsService extends BaseService
                     $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
                 }
             } else {
-                $this->error('推广失败，请联系客服');
+                $this->error('推广失败，请联系客服' . json_encode($res));
             }
             return $res;
         } catch (\Exception $e) {
