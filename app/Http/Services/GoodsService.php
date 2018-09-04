@@ -12,6 +12,7 @@ namespace App\Http\Services;
 use App\Library\Jd\Jd;
 use App\Models\Goods;
 use App\Models\Swiper;
+use EasyWeChat\Kernel\Messages\Image;
 
 class GoodsService extends BaseService
 {
@@ -153,7 +154,17 @@ class GoodsService extends BaseService
             }
             $res = $app->customer_service->message($message)->to($openid)->send();
             if ($res['errcode'] == 0) {
-
+                // 发送图片
+                if ($detail['ad']) {
+                    $path = storage_path('app') . '/' . $detail['ad'];
+                    $image = $app->media->uploadImage($path);
+                    $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
+                }
+                if ($detail['ad_qr']) {
+                    $path = storage_path('app') . '/' . $detail['ad_qr'];
+                    $image = $app->media->uploadImage($path);
+                    $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
+                }
             } else {
                 $this->error('推广失败，请联系客服');
             }
