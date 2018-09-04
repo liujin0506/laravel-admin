@@ -23,18 +23,17 @@ class LinkController extends Controller
 
         $user = auth('wap')->user();
 
-        $jd = new Jd();
-        $data = $jd->request('jingdong.service.promotion.getcode', [
-            'promotionType' => '7',
-            'materialId' => $matches['0'],
-            'unionId' => $user['union_id'],
-            'channel' => 'WL',
-            'webId' => '0'
-        ], 'queryjs_result');
+//        $jd = new Jd();
+//        $data = $jd->request('jingdong.service.promotion.getcode', [
+//            'promotionType' => '7',
+//            'materialId' => $matches['0'],
+//            'unionId' => $user['union_id'],
+//            'channel' => 'WL',
+//            'webId' => '0'
+//        ], 'queryjs_result');
         return [
-            'matches' => $data,
             'old' => $link,
-            'link' => $data,
+            'link' => $link,
             'url' => $link
         ];
     }

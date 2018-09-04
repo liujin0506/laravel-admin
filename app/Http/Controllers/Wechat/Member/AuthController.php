@@ -76,6 +76,17 @@ class AuthController extends Controller
     public function info()
     {
         $user_info = auth('wap')->user();
+        // jssdk
+        $app = app('wechat.official_account');
+        $url = request()->server('HTTP_REFERER');
+        $jssdk = $app->jssdk->setUrl($url)->buildConfig([
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage'
+        ], $debug = false, $beta = false, $json = false);
+        $jssdk['share_img'] = '';
+        $user_info['jssdk'] = $jssdk;
         return compact('user_info');
     }
 
