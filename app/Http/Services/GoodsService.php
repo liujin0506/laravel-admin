@@ -159,6 +159,27 @@ class GoodsService extends BaseService
         return $model->detail($id);
     }
 
+    public function sendWechat($openid, $params)
+    {
+        $link = data_get($params, 'link');
+        if (!$link) {
+            $this->error('内容不能为空');
+        }
+        $app = app('wechat.official_account');
+        try {
+            $res = $app->customer_service->message($link)->to($openid)->send();
+            if ($res['errcode'] == 0) {
+                return $res;
+            } else {
+                $this->error('推广失败，请联系客服' . json_encode($res));
+            }
+            return $res;
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return false;
+        }
+    }
+
     public function spread($id, $openid, $params)
     {
         $app = app('wechat.official_account');

@@ -11,10 +11,6 @@ namespace App\Http\Controllers\Wechat\Link;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\GoodsService;
-use App\Library\Core\Common;
-use App\Library\Jd\Jd;
-use GuzzleHttp\Client;
-use function GuzzleHttp\Psr7\parse_query;
 use Illuminate\Http\Request;
 
 class LinkController extends Controller
@@ -27,8 +23,10 @@ class LinkController extends Controller
         return $service->transLink($params, $user);
     }
 
-    public function send_wechat(Request $request)
+    public function send_wechat(Request $request, GoodsService $service)
     {
-        return $request->all();
+        $params = $request->all();
+        $openid = $request->attributes->get('openid');
+        return $service->sendWechat($openid, $params);
     }
 }
