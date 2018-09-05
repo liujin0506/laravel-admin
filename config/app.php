@@ -213,6 +213,11 @@ return [
         /** jwt-auth */
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 
+        /** Image */
+        'Image' => Intervention\Image\Facades\Image::class,
+
+        /** QrCode */
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
     ],
 
 ];
