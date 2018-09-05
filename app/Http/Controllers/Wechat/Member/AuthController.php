@@ -28,16 +28,16 @@ class AuthController extends Controller
             // 调试模式
             $socialite = new MemberSocialite();
             $member = $socialite->Wechat([
-                'openid' => 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs',
+                'openid' => 'obfVR1roswDCDxJOoib-Upu7zaF8',
                 'name' => 'Jliu',
                 'nickname' => 'Jliu',
                 'avatar' => 'http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83eqlCXm2hr8NXWf3d3XnMSAmGFxxuibM6Jd3MW6yAM94E0FORdTp8XlSUxUXUb0rRw687JwKhq8aKfw/132',
                 'email' => ''
             ]);
-            $GLOBALS['openid'] = 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs';
+            $GLOBALS['openid'] = 'obfVR1roswDCDxJOoib-Upu7zaF8';
             $token = auth('wap')->login($member);
             return [
-                'openid' => 'o_fwUwUF5MnfKpDc5Bdsdh-KZjxs',
+                'openid' => 'obfVR1roswDCDxJOoib-Upu7zaF8',
                 'token' => $token
             ];
         } else {

@@ -18,6 +18,7 @@ Route::group(['prefix' => 'goods',  'namespace' => 'Goods', 'middleware' => 'aut
     Route::get('category', 'CategoryController@index');
     Route::get('lists', 'GoodsController@lists');
     Route::get('detail/{id}', 'GoodsController@detail');
+    Route::post('spread/{id}', 'GoodsController@spread');
 });
 
 Route::group(['prefix' => 'link',  'namespace' => 'Link', 'middleware' => 'auth.wap'], function () {
