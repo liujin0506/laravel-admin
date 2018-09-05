@@ -204,7 +204,7 @@ class GoodsService extends BaseService
                 $message .= $detail['goods_name'] . "\n—————————\n";
                 $message .= "京东价：¥" . $detail['wl_unit_price'] . "\n";
                 $message .= "内购价：¥" . $detail['real_price'] . "\n\n";
-                $message .= "👉领券+下单：<a href='{$url}'>{$url}</a>";
+                $message .= "👉领券+下单：{$url}";
             } else {
                 $message = str_replace(['[title]', '[price]', '[realprice]', '[link]'], [
                     $detail['goods_name'],
