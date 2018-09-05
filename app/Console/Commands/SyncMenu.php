@@ -33,8 +33,18 @@ class SyncMenu extends Command
         $buttons = [
             [
                 "type" => "view",
-                "name" => "京好赚",
-                "url"  => "http://wx.jhz.bjue.cn/"
+                "name" => "京选",
+                "url"  => "http://wx.jhz.bjue.cn/#/home/index"
+            ],
+            [
+                "type" => "view",
+                "name" => "找货",
+                "url"  => "http://wx.jhz.bjue.cn/#/search/index"
+            ],
+            [
+                "type" => "view",
+                "name" => "我的",
+                "url"  => "http://wx.jhz.bjue.cn/#/user/index"
             ]
         ];
         $app->menu->create($buttons);
