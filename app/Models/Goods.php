@@ -65,7 +65,6 @@ class Goods extends Model
         if ($is_recommend >= 0) {
             $query->where('is_recommend', $is_recommend);
         }
-
         $category_id = data_get($params, 'category_id', 0);
         if ($category_id > 0) {
             $query->where('cid', $category_id);
@@ -85,7 +84,6 @@ class Goods extends Model
         } elseif ($sort_type == 'repay') {
             $query->orderBy('commision_ratio_wl', $sort);
         }
-
 
         $data = $query->paginate($per_page, $columns);
         $data->each(function ($item) {
