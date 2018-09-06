@@ -11,7 +11,6 @@ namespace App\Models;
 
 use App\Library\Jd\Jd;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use phpDocumentor\Reflection\Types\Self_;
 
 class Goods extends Model
 {
@@ -64,6 +63,14 @@ class Goods extends Model
         $is_recommend = data_get($params, 'is_recommend', -1);
         if ($is_recommend >= 0) {
             $query->where('is_recommend', $is_recommend);
+            $query->where(function ($q) {
+                $q->orWhere('recommend_start', '<=', date('Y-m-d H:i:s'));
+                $q->orWhere('recommend_start', null);
+            });
+            $query->where(function ($q) {
+                $q->orWhere('recommend_end', '>=', date('Y-m-d H:i:s'));
+                $q->orWhere('recommend_end', null);
+            });
         }
         $category_id = data_get($params, 'category_id', 0);
         if ($category_id > 0) {
@@ -114,7 +121,10 @@ class Goods extends Model
 
     public function edit($id, $params)
     {
-        $params = array_only($params, ['sort', 'is_recommend', 'slogan', 'ad', 'ad_qr']);
+        $params = array_only($params, ['sort', 'is_recommend', 'slogan', 'img_url', 'recommend_end', 'recommend_start']);
+        if (!isset($params['slogan'])) {
+            $params['slogan'] = '';
+        }
         $res = self::query()->where(['id' => $id])->update($params);
         return $res ? self::query()->where('id', $id)->first() : [];
     }
