@@ -53,6 +53,16 @@ Route::get('test', function () {
 
 Route::get('poster', function (\Illuminate\Http\Request $request) {
      $params = $request->all();
+     if (!isset($params['thumb'])) {
+         $params = [
+             'thumb' => 'http://img14.360buyimg.com/n1/jfs/t21283/39/2598647154/189776/340414ef/5b5ecc7eNb7c53951.jpg',
+             'title' => '魔幻厨房 烘焙工具套装 烤箱用品DIY蛋糕模具 饼干披萨蛋挞 做蛋糕西点烘培模具套餐 新手 套装全套',
+             'real_price' => '99.00',
+             'discount' => '10.00',
+             'new_price' => '89.00',
+             'url' => 'http://www.baidu.com/'
+         ];
+     }
      return view('wechat/poster', [
         'thumb' => $params['thumb'],
         'title' => $params['title'],
@@ -61,21 +71,4 @@ Route::get('poster', function (\Illuminate\Http\Request $request) {
         'new_price' => $params['new_price'],
         'url' => $params['url']
     ]);
-});
-
-Route::get('test', function () {
-    $client = new \GuzzleHttp\Client();
-    $data = $client->post('http://127.0.0.1:7777/html2Image', [
-        'header' => [
-            'Content-Type' => 'application/x-www-form-urlencoded'
-        ],
-        'form_params' => [
-            'url' => 'http://wx.jd.risay.cn/poster',
-            'type' => 'base64',
-            'width' => 350,
-            'height' => 500
-        ]
-    ]);
-    $data = $data->getBody()->getContents();
-    file_put_contents(storage_path('app') . '/poster.png', base64_decode($data));
 });

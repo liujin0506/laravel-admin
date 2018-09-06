@@ -29,37 +29,36 @@
             .main .content {
                 padding: 10px;
                 position: absolute;
-                height: 120px;
                 width: 180px;
                 float: left;
                 background: #ffffff;
             }
-            .main .content .title {
-                font-size: 13px;
+            .main .title {
+                padding: 10px;
+                font-size: 14px;
                 overflow:hidden;
                 text-overflow:ellipsis;
                 display:-webkit-box;
                 -webkit-box-orient:vertical;
-                -webkit-line-clamp:3;
+                -webkit-line-clamp:2;
                 color: #000000;
             }
-            .main .content .title span {
-                background: #ff0000;
-                color: #ffffff;
-            }
             .main .content .realprice {
-                margin-top: 20px;
                 font-size: 12px;
             }
             .main .content .realprice span {
                 text-decoration: line-through;
             }
             .main .content .discount {
-                font-size: 12px;
-            }
-            .main .content .discount span {
                 font-size: 13px;
                 color: #ff0000;
+            }
+            .main .content .discount span {
+                font-size: 15px;
+            }
+            .main .content .scan {
+                font-size: 12px;
+                margin-top: 20px;
             }
             .main .qrcode {
                 width: 150px;
@@ -77,20 +76,20 @@
     <body>
         <div class="main">
             <img class="thumb" src="{{ $thumb }}"/>
+            <div class="title">
+                {{ $title }}
+            </div>
             <div class="content">
-                <div class="title">
-                    <span>JD 京东</span> {{ $title }}
-                </div>
                 <div class="realprice">
                     原价 <span>￥{{ $real_price }}</span>
                 </div>
                 <div class="discount">
                     券后价：<span>￥{{ $new_price }}</span>
                 </div>
+                <div class="scan">长按扫描二维码查看商品</div>
             </div>
             <div class="qrcode">
-                {!! QrCode::size(120)->margin(1)->generate($url); !!}
-                <div> - 扫码领券 - </div>
+                {!! QrCode::size(90)->margin(0)->generate($url); !!}
             </div>
         </div>
     </body>
