@@ -36,6 +36,7 @@
             }
             .main .title {
                 padding: 10px;
+                height: 38px;
                 font-size: 14px;
                 overflow:hidden;
                 text-overflow:ellipsis;
