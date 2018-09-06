@@ -74,8 +74,18 @@ class Goods extends Model
         $query->where('end_date', '>', date('Y-m-d H:i:s'));
         $query->where('coupon_num', '>', 0);
         $query->where('discount', '>', 0);
-        $query->orderBy('sort', 'desc');
-        $query->orderBy('id', 'desc');
+        $sort_type = data_get($params, 'sort_type', 'common');
+        $sort = data_get($params, 'sort', 'desc');
+        $sort = $sort == 'asc' ? 'asc' : 'desc';
+        if ($sort_type == 'common') {
+            $query->orderBy('sort', 'desc');
+            $query->orderBy('id', 'desc');
+        } elseif ($sort_type == 'price') {
+            $query->orderBy('wl_unit_price', $sort);
+        } elseif ($sort_type == 'repay') {
+            $query->orderBy('commision_ratio_wl', $sort);
+        }
+
 
         $data = $query->paginate($per_page, $columns);
         $data->each(function ($item) {
