@@ -51,14 +51,15 @@ Route::get('test', function () {
     ]);
 });
 
-Route::get('poster', function () {
+Route::get('poster', function (\Illuminate\Http\Request $request) {
+     $params = $request->all();
      return view('wechat/poster', [
-        'thumb' => 'http://img14.360buyimg.com/n1/jfs/t18997/133/1423890958/426440/d015b4b9/5aca0554N15e234cf.jpg',
-        'title' => '修改二维码图片尺寸修改二维码图片尺寸修改二维码图片尺寸修改二维码图片尺寸',
-        'real_price' => '10.00',
-        'discount' => '1.00',
-        'new_price' => '9.00',
-        'url' => 'http://www.baidu.com'
+        'thumb' => $params['thumb'],
+        'title' => $params['title'],
+        'real_price' => $params['real_price'],
+        'discount' => $params['discount'],
+        'new_price' => $params['new_price'],
+        'url' => $params['url']
     ]);
 });
 
@@ -70,9 +71,11 @@ Route::get('test', function () {
         ],
         'form_params' => [
             'url' => 'http://wx.jd.risay.cn/poster',
+            'type' => 'base64',
             'width' => 350,
             'height' => 500
         ]
     ]);
-    echo($data->getBody()->getContents());
+    $data = $data->getBody()->getContents();
+    file_put_contents(storage_path('app') . '/poster.png', base64_decode($data));
 });

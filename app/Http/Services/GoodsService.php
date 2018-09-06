@@ -216,16 +216,49 @@ class GoodsService extends BaseService
             $res = $app->customer_service->message($message)->to($openid)->send();
             if ($res['errcode'] == 0) {
                 // 发送图片
-                if ($detail['ad']) {
-                    $path = storage_path('app') . '/' . $detail['ad'];
+                if ($detail['img_url']) {
+                    if (substr($detail['img_url'], 0, 4) === 'http') {
+                        $path = storage_path('app') . '/goods_thumb/' . $id . '.png';
+                        if (!file_exists($path)) {
+                            file_put_contents($path, file_get_contents($detail['img_url']));
+                        }
+                    } else {
+                        $path = storage_path('app') . '/' . $detail['img_url'];
+                    }
                     $image = $app->media->uploadImage($path);
                     $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
-                }
-                if ($detail['ad_qr']) {
-                    $path = storage_path('app') . '/' . $detail['ad_qr'];
-                    $image = $app->media->uploadImage($path);
+
+                    $getData = [
+                        'thumb' => $detail['img_url'],
+                        'title' => $detail['goods_name'],
+                        'real_price' => $detail['wl_unit_price'],
+                        'discount' => $detail['discount'],
+                        'new_price' => $detail['real_price'],
+                        'url' => $url
+                    ];
+                    $client = new \GuzzleHttp\Client();
+                    $data = $client->post('http://127.0.0.1:7777/html2Image', [
+                        'header' => [
+                            'Content-Type' => 'application/x-www-form-urlencoded'
+                        ],
+                        'form_params' => [
+                            'url' => 'http://wx.jhz.bjue.cn/poster?' . http_build_query($getData),
+                            'type' => 'base64',
+                            'width' => 350,
+                            'height' => 500
+                        ]
+                    ]);
+                    $data = $data->getBody()->getContents();
+                    file_put_contents(storage_path('app') . '/poster.png', base64_decode($data));
+                    $image = $app->media->uploadImage(storage_path('app') . '/poster.png');
+                    unlink(storage_path('app') . '/poster.png');
                     $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
                 }
+//                if ($detail['ad_qr']) {
+//                    $path = storage_path('app') . '/' . $detail['ad_qr'];
+//                    $image = $app->media->uploadImage($path);
+//                    $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
+//                }
             } else {
                 $this->error('推广失败，请联系客服' . json_encode($res));
             }
