@@ -32,4 +32,10 @@ class GoodsController extends Controller
         $params = $request->all();
         return $service->update($id, $params);
     }
+
+    public function upload(Request $request, GoodsService $service)
+    {
+        $params = $request->all();
+        return $service->upload($params);
+    }
 }

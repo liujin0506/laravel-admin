@@ -59,6 +59,89 @@ class GoodsService extends BaseService
         }
     }
 
+    public function upload($params)
+    {
+        if (empty($params) ) {
+            $this->error('数据为空，请重新上传');
+        }
+        $skuIds = [];
+        foreach ($params as $value) {
+            array_push($skuIds, $value['skuId']);
+        }
+        if (count($skuIds) == 0) {
+            $this->error('数据格式不正确，请重新上传');
+        }
+        if (count($skuIds) > 30) {
+            $this->error('为了保证服务器正常运行，单次最多上传30条数据');
+        }
+        $jd = new Jd();
+        try {
+            $data = $jd->request('jingdong.union.search.queryCouponGoods', [
+                'skuIdList' => implode(',', $skuIds),
+            ], 'query_coupon_goods_result');
+            if (!$data || $data['total'] == 0) {
+                $this->error('未找到商品, 请检查 skuId');
+            }
+            $details = $jd->request('jingdong.service.promotion.goodsInfo', [
+                'skuIds' => implode(',', $skuIds)
+            ], 'getpromotioninfo_result');
+            $goods = isset($details['result']) ? $details['result'] : [];
+            if (!empty($goods)) foreach ($goods as &$value) {
+                foreach ($data['data'] as $v) {
+                    if ($value['skuId'] == $v['skuId']) {
+                        $value['couponList'] = isset($v['couponList']) ? $v['couponList'] : [];
+                    }
+                }
+                foreach ($params as $p) {
+                    if ($p['skuId'] = $value['skuId']) {
+                        $value['is_recommend'] = (isset($p['是否推荐']) && $p['是否推荐'] == '是') ? 1 : 0;
+                        $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
+                        $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : '';
+                        $value['recommend_end'] = isset($p['京选下架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选下架时间'])) : '';
+                    }
+                }
+                $discount = isset($value['couponList'][0]) ? $value['couponList'][0]['discount'] : 0;
+                $beginTime = isset($value['couponList'][0]) ? $value['couponList'][0]['beginTime'] : $value['startDate'];
+                $endTime = isset($value['couponList'][0]) ? $value['couponList'][0]['endTime'] : $value['endDate'];
+                Goods::query()->updateOrCreate(['sku_id' => $value['skuId']], [
+                    'cid' => $value['cid'],
+                    'cid2' => $value['cid2'],
+                    'cid3' => $value['cid3'],
+                    'cid_name' => $value['cidName'],
+                    'cid2_name' => $value['cid2Name'],
+                    'cid3_name' => $value['cid3Name'],
+                    'goods_name' => $value['goodsName'],
+                    'img_url' => $value['imgUrl'],
+                    'commision_ratio_pc' => $value['commisionRatioPc'],
+                    'commision_ratio_wl' => $value['commisionRatioWl'],
+                    'in_order_count' => $value['inOrderCount'],
+                    'is_free_freight_risk' => $value['isFreeFreightRisk'],
+                    'is_free_shipping' => $value['isFreeShipping'],
+                    'is_jd_sale' => $value['isJdSale'],
+                    'is_seckill' => $value['isSeckill'],
+                    'material_url' => $value['materialUrl'],
+                    'shop_id' => $value['shopId'],
+                    'start_date' => date('Y-m-d H:i:s', $beginTime / 1000),
+                    'end_date' => date('Y-m-d H:i:s', $endTime / 1000),
+                    'unit_price' => $value['unitPrice'],
+                    'wl_unit_price' => $value['wlUnitPrice'],
+                    'vid' => $value['cid'],
+                    'discount' => $discount,
+                    'coupon_list' => json_encode($value['couponList']),
+                    'coupon_num' => count($value['couponList']),
+                    'is_recommend' => $value['is_recommend'],
+                    'slogan' => $value['slogan'],
+                    'recommend_start' => $value['recommend_start'],
+                    'recommend_end' => $value['recommend_end']
+                ]);
+            }
+            return $goods;
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return false;
+        }
+    }
+
     public function create($params)
     {
         $skuid = data_get($params, 'sku_id', '');
@@ -111,15 +194,11 @@ class GoodsService extends BaseService
                 'coupon_num' => count($details['couponList']),
             ]);
             if ($res) {
-                $params = array_only($params, ['sort', 'is_recommend', 'slogan', 'ad', 'ad_qr']);
-                if (!$params['ad']) {
-                    $params['ad'] = '';
-                }
+                $params = array_only($params, [
+                    'sort', 'is_recommend', 'img_url', 'slogan', 'recommend_start', 'recommend_end'
+                ]);
                 if (isset($params['slogan']) && !$params['slogan']) {
                     $params['slogan'] = '';
-                }
-                if (!$params['ad_qr']) {
-                    $params['ad_qr'] = '';
                 }
                 Goods::query()->where(['sku_id' => $skuid])->update($params);
                 return $res;

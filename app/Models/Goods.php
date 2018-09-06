@@ -43,7 +43,11 @@ class Goods extends Model
         'vid',
         'discount',
         'coupon_list',
-        'coupon_num'
+        'coupon_num',
+        'is_recommend',
+        'slogan',
+        'recommend_start',
+        'recommend_end'
     ];
 
     public function lists($params, $columns = ['*'])

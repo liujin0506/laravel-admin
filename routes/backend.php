@@ -39,5 +39,6 @@ Route::group(['prefix' => 'jd', 'namespace' => 'Jd', 'middleware' => 'auth.jwt']
    /** 栏目 */
    Route::resource('category', 'CategoryController');
    Route::resource('goods', 'GoodsController');
+   Route::post('goods/upload', 'GoodsController@upload');
    Route::resource('swiper', 'SwiperController');
 });
