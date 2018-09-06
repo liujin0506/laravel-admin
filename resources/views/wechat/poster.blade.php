@@ -62,6 +62,7 @@
                 margin-top: 20px;
             }
             .main .qrcode {
+                margin-top: -10px;
                 width: 150px;
                 float: right;
                 text-align: center;

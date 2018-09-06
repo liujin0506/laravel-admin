@@ -56,7 +56,7 @@ Route::get('poster', function (\Illuminate\Http\Request $request) {
      if (!isset($params['thumb'])) {
          $params = [
              'thumb' => 'http://img14.360buyimg.com/n1/jfs/t21283/39/2598647154/189776/340414ef/5b5ecc7eNb7c53951.jpg',
-             'title' => '魔幻厨房 烘焙工具套装 烤箱用品DIY蛋糕模具 饼干披萨蛋挞 做蛋糕西点烘培模具套餐 新手 套装全套',
+             'title' => '魔幻厨房 烘焙工具套装 烤箱用品DIY蛋糕模具 饼干披萨蛋挞 做蛋糕西点烘培模具套餐 新手 套装全套套装全套套装全套套装全套',
              'real_price' => '99.00',
              'discount' => '10.00',
              'new_price' => '89.00',
