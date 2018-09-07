@@ -26,6 +26,11 @@ class UserController extends Controller
         return $service->detail();
     }
 
+    public function update($id, Request $request, UserService $service)
+    {
+        return $service->update($id, $request->all());
+    }
+
     public function get_roles($id, UserService $service)
     {
         return $service->getRoles($id);

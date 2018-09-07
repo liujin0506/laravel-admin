@@ -14,6 +14,7 @@ use App\Library\Jd\Jd;
 use App\Models\Goods;
 use App\Models\Swiper;
 use EasyWeChat\Kernel\Messages\Image;
+use Illuminate\Support\Facades\Log;
 
 class GoodsService extends BaseService
 {
@@ -82,6 +83,10 @@ class GoodsService extends BaseService
             if (!$data || $data['total'] == 0) {
                 $this->error('未找到商品, 请检查 skuId');
             }
+            $skuIds = [];
+            if ($data && !empty($data['data'])) foreach ($data['data'] as $value) {
+                array_push($skuIds, $value['skuId']);
+            }
             $details = $jd->request('jingdong.service.promotion.goodsInfo', [
                 'skuIds' => implode(',', $skuIds)
             ], 'getpromotioninfo_result');
@@ -96,13 +101,13 @@ class GoodsService extends BaseService
                     if ($p['skuId'] = $value['skuId']) {
                         $value['is_recommend'] = (isset($p['是否推荐']) && $p['是否推荐'] == '是') ? 1 : 0;
                         $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
-                        $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : '';
-                        $value['recommend_end'] = isset($p['京选下架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选下架时间'])) : '';
+                        $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : null;
+                        $value['recommend_end'] = isset($p['京选下架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选下架时间'])) : null;
                     }
                 }
-                $discount = isset($value['couponList'][0]) ? $value['couponList'][0]['discount'] : 0;
-                $beginTime = isset($value['couponList'][0]) ? $value['couponList'][0]['beginTime'] : $value['startDate'];
-                $endTime = isset($value['couponList'][0]) ? $value['couponList'][0]['endTime'] : $value['endDate'];
+                $discount = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['discount'] : 0;
+                $beginTime = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['beginTime'] : $value['startDate'];
+                $endTime = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['endTime'] : $value['endDate'];
                 Goods::query()->updateOrCreate(['sku_id' => $value['skuId']], [
                     'cid' => $value['cid'],
                     'cid2' => $value['cid2'],
@@ -197,7 +202,7 @@ class GoodsService extends BaseService
                 $params = array_only($params, [
                     'sort', 'is_recommend', 'img_url', 'slogan', 'recommend_start', 'recommend_end'
                 ]);
-                if (isset($params['slogan']) && !$params['slogan']) {
+                if (!isset($params['slogan']) || !$params['slogan']) {
                     $params['slogan'] = '';
                 }
                 Goods::query()->where(['sku_id' => $skuid])->update($params);

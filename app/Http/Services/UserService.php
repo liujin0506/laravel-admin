@@ -34,6 +34,15 @@ class UserService extends BaseService
         return $this->response->array($user);
     }
 
+    public function update($id, $params)
+    {
+        $update = [];
+        $update['mobile'] = data_get($params, 'mobile', '') ?: '';
+        $update['nickname'] = data_get($params, 'nickname', '') ?: '';
+        $update['username'] = data_get($params, 'username', '');
+        return User::query()->where('id', $id)->update($update);
+    }
+
     /**
      * 获取管理员角色
      * @param $custom_id
@@ -64,6 +73,11 @@ class UserService extends BaseService
 
     public function changePassword($id, $params)
     {
-        return $params;
+        if ($params['pass'] !== $params['check']) {
+            $this->error('两次密码不一致');
+        }
+        return User::query()->where('id', $id)->update([
+            'password' => bcrypt($params['pass'])
+        ]);
     }
 }
