@@ -47,3 +47,13 @@ Route::get('poster', function (\Illuminate\Http\Request $request) {
         'url' => $params['url']
     ]);
 });
+
+Route::get('test', function () {
+   $jd = new \App\Library\Jd\Jd();
+    $url = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
+        'couponUrl' => 'http://coupon.m.jd.com/coupons/show.action?key=320a1bb18c244060ba937916406d675f&roleId=14120004&to=item.jd.com/27356107830.html#crumb-wrap',
+        'materialIds' => (string) '27356107830',
+        'unionId' => '1000400725'
+    ], 'getcodebyunionid_result');
+    dd($url);
+});

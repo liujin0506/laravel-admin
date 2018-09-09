@@ -76,38 +76,32 @@ class GoodsService extends BaseService
             $this->error('为了保证服务器正常运行，单次最多上传30条数据');
         }
         $jd = new Jd();
+        $coupon = [];
+        if (!empty($params)) foreach ($params as $value) {
+            $coupon[$value['skuId']] = isset($value['优惠券链接']) ? $value['优惠券链接'] : '';
+        }
         try {
-            $data = $jd->request('jingdong.union.search.queryCouponGoods', [
-                'skuIdList' => implode(',', $skuIds),
-            ], 'query_coupon_goods_result');
-            if (!$data || $data['total'] == 0) {
-                $this->error('未找到商品, 请检查 skuId');
-            }
-            $skuIds = [];
-            if ($data && !empty($data['data'])) foreach ($data['data'] as $value) {
-                array_push($skuIds, $value['skuId']);
-            }
             $details = $jd->request('jingdong.service.promotion.goodsInfo', [
                 'skuIds' => implode(',', $skuIds)
             ], 'getpromotioninfo_result');
             $goods = isset($details['result']) ? $details['result'] : [];
             if (!empty($goods)) foreach ($goods as &$value) {
-                foreach ($data['data'] as $v) {
-                    if ($value['skuId'] == $v['skuId']) {
-                        $value['couponList'] = isset($v['couponList']) ? $v['couponList'] : [];
-                    }
-                }
                 foreach ($params as $p) {
-                    if ($p['skuId'] = $value['skuId']) {
+                    if ($p['skuId'] == $value['skuId']) {
+                        $value['discount'] = $p['京东价'] - $p['券后价'];
                         $value['is_recommend'] = (isset($p['是否推荐']) && $p['是否推荐'] == '是') ? 1 : 0;
                         $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
                         $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : null;
                         $value['recommend_end'] = isset($p['京选下架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选下架时间'])) : null;
                     }
                 }
-                $discount = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['discount'] : 0;
-                $beginTime = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['beginTime'] : $value['startDate'];
-                $endTime = isset($v['couponList']) && isset($value['couponList'][0]) ? $value['couponList'][0]['endTime'] : $value['endDate'];
+                if (isset($coupon[$value['skuId']]) && $coupon[$value['skuId']]) {
+                    $value['couponList'] = [
+                        ['link' => $coupon[$value['skuId']]]
+                    ];
+                }
+                $beginTime = $value['recommend_start'] ?: $value['startDate'];
+                $endTime = $value['recommend_end'] ?: $value['endDate'];
                 Goods::query()->updateOrCreate(['sku_id' => $value['skuId']], [
                     'cid' => $value['cid'],
                     'cid2' => $value['cid2'],
@@ -131,7 +125,7 @@ class GoodsService extends BaseService
                     'unit_price' => $value['unitPrice'],
                     'wl_unit_price' => $value['wlUnitPrice'],
                     'vid' => $value['cid'],
-                    'discount' => $discount,
+                    'discount' => $value['discount'],
                     'coupon_list' => json_encode($value['couponList']),
                     'coupon_num' => count($value['couponList']),
                     'is_recommend' => $value['is_recommend'],
@@ -279,6 +273,7 @@ class GoodsService extends BaseService
                 'unionId' => $user['union_id']
             ], 'getcodebyunionid_result');
             $url = array_values($url['urlList'])[0];
+
             if (!$url) {
                 $this->error('获取推广链接失败，请联系管理员');
             }
@@ -338,11 +333,6 @@ class GoodsService extends BaseService
                     unlink(storage_path('app') . '/poster.png');
                     $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
                 }
-//                if ($detail['ad_qr']) {
-//                    $path = storage_path('app') . '/' . $detail['ad_qr'];
-//                    $image = $app->media->uploadImage($path);
-//                    $app->customer_service->message(new Image($image['media_id']))->to($openid)->send();
-//                }
             } else {
                 $this->error('推广失败，请联系客服' . json_encode($res));
             }
