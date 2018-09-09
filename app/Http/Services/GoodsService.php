@@ -150,20 +150,19 @@ class GoodsService extends BaseService
         }
         $jd = new Jd();
         try {
-            $data = $jd->request('jingdong.union.search.queryCouponGoods', [
-                'skuIdList' => $skuid,
-            ], 'query_coupon_goods_result');
-            if (!$data || $data['total'] == 0) {
-                $this->error('未找到商品, 请检查 skuId');
-            }
             $details = $jd->request('jingdong.service.promotion.goodsInfo', [
                 'skuIds' => $skuid
             ], 'getpromotioninfo_result');
+            if ($details['sucessed'] != 1 || count($details['result']) == 0) {
+                $this->error('获取商品信息失败，请检查 skuId ');
+            }
             $details = $details['result'][0];
-            $details['couponList'] = $data['data'][0]['couponList'];
-            $discount = isset($details['couponList'][0]) ? $details['couponList'][0]['discount'] : 0;
-            $beginTime = isset($details['couponList'][0]) ? $details['couponList'][0]['beginTime'] : $details['startDate'];
-            $endTime = isset($details['couponList'][0]) ? $details['couponList'][0]['endTime'] : $details['endDate'];
+            $details['couponList'] = [
+                ['link' => $params['coupon_link']]
+            ];
+            $discount = $details['wlUnitPrice'] - $params['price'];
+            $beginTime = isset($params['recommend_start']) ? strtotime($params['recommend_start']) * 1000 : $details['startDate'];
+            $endTime = isset($params['recommend_end']) ? strtotime($params['recommend_end']) * 1000 : $details['startDate'];
 
             $res = Goods::query()->updateOrCreate(['sku_id' => $skuid], [
                 'cid' => $details['cid'],
@@ -198,6 +197,9 @@ class GoodsService extends BaseService
                 ]);
                 if (!isset($params['slogan']) || !$params['slogan']) {
                     $params['slogan'] = '';
+                }
+                if (!isset($params['img_url']) || !$params['img_url']) {
+                    $params['img_url'] = '';
                 }
                 Goods::query()->where(['sku_id' => $skuid])->update($params);
                 return $res;
@@ -275,6 +277,7 @@ class GoodsService extends BaseService
             $url = array_values($url['urlList'])[0];
 
             if (!$url) {
+                // 尝试重新获取优惠券链接
                 $this->error('获取推广链接失败，请联系管理员');
             }
 
