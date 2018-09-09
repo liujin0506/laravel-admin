@@ -199,7 +199,7 @@ class GoodsService extends BaseService
                     $params['slogan'] = '';
                 }
                 if (!isset($params['img_url']) || !$params['img_url']) {
-                    $params['img_url'] = '';
+                    unset($params['img_url']);
                 }
                 Goods::query()->where(['sku_id' => $skuid])->update($params);
                 return $res;
