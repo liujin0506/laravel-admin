@@ -10,7 +10,7 @@
         <!-- Styles -->
         <style>
             html, body {
-                font-family: PingFangSC-Regular, sans-serif;
+                font-family: SimHei, PingFangSC-Regular, sans-serif;
                 background-color: #fff;
                 color: #636b6f;
                 font-weight: 100;
@@ -51,11 +51,11 @@
                 text-decoration: line-through;
             }
             .main .content .discount {
-                font-size: 13px;
+                font-size: 14px;
                 color: #ff0000;
             }
             .main .content .discount span {
-                font-size: 15px;
+                font-size: 16px;
             }
             .main .content .scan {
                 font-size: 12px;
