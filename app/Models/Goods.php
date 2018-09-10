@@ -56,7 +56,10 @@ class Goods extends Model
         $per_page = data_get($params, 'per_page', 20);
         $keyword = data_get($params, 'keyword', '');
         if (!empty($keyword)) {
-            $query->where('goods_name', 'like', '%' . trim($keyword) . '%');
+            $query->where(function ($q) use ($keyword) {
+                $q->orWhere('goods_name', 'like', '%' . trim($keyword) . '%');
+                $q->orWhere('sku_id', $keyword);
+            });
         }
 
         $sku_id = data_get($params, 'sku_id', '');

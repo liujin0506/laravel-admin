@@ -100,8 +100,8 @@ class GoodsService extends BaseService
                         ['link' => $coupon[$value['skuId']]]
                     ];
                 }
-                $beginTime = $value['recommend_start'] ?: $value['startDate'];
-                $endTime = $value['recommend_end'] ?: $value['endDate'];
+                $beginTime = $value['recommend_start'] ?: date('Y-m-d H:i:s', $value['startDate'] / 1000);
+                $endTime = $value['recommend_end'] ?: date('Y-m-d H:i:s', $value['endDate'] / 1000);
                 Goods::query()->updateOrCreate(['sku_id' => $value['skuId']], [
                     'cid' => $value['cid'],
                     'cid2' => $value['cid2'],
@@ -120,8 +120,8 @@ class GoodsService extends BaseService
                     'is_seckill' => $value['isSeckill'],
                     'material_url' => $value['materialUrl'],
                     'shop_id' => $value['shopId'],
-                    'start_date' => date('Y-m-d H:i:s', $beginTime / 1000),
-                    'end_date' => date('Y-m-d H:i:s', $endTime / 1000),
+                    'start_date' => $beginTime,
+                    'end_date' => $endTime,
                     'unit_price' => $value['unitPrice'],
                     'wl_unit_price' => $value['wlUnitPrice'],
                     'vid' => $value['cid'],
