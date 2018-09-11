@@ -10,6 +10,7 @@
 namespace App\Library\Core;
 use App\Library\Jd\Jd;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class Common
 {
@@ -33,7 +34,9 @@ class Common
                     'Referer' => $url
                 ]
             ]);
-            $data = $client->get($url);
+            $data = $client->get($url, [
+                'allow_redirects' => true
+            ]);
             $content = $data->getBody()->getContents();
             preg_match('/var hrl=\'(.*)\';var ua/i', $content, $url2);
             $url2 = $url2['1'];
@@ -63,7 +66,7 @@ class Common
                 'skuIdList' => $sku_id,
             ], 'query_coupon_goods_result');
             if (!$data || $data['total'] == 0) {
-                throw new \Exception('未找到商品, 请检查 skuId');
+                return false;
             }
             $details = $jd->request('jingdong.service.promotion.goodsInfo', [
                 'skuIds' => $sku_id
@@ -102,7 +105,7 @@ class Common
                 'coupon_num' => count($details['couponList']),
             ];
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            return false;
         }
     }
 

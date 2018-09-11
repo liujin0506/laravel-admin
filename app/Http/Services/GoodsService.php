@@ -39,8 +39,16 @@ class GoodsService extends BaseService
                 return false;
             }
             $detail = Common::getDetailBySkuId($skuId);
+            if ($detail) {
+                $coupon_url = $this->getCouponLink($detail['coupon_list']);
+            } else {
+                $detail = Goods::query()->where('sku_id', $skuId)->first();
+                $coupon_url = $this->getCouponLink(json_decode($detail['coupon_list'], true));
+            }
+            if (!$detail) {
+                $this->error('链接转换失败，没有找到指定商品');
+            }
             $jd = new Jd();
-            $coupon_url = $this->getCouponLink($detail['coupon_list']);
             $url_ret = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
                 'couponUrl' => $coupon_url,
                 'materialIds' => (string) $skuId,
@@ -55,7 +63,7 @@ class GoodsService extends BaseService
                 'link' => $link
             ];
         } catch (\Exception $e) {
-            $this->error('链接转换失败');
+            $this->error($e->getMessage());
             return false;
         }
     }
