@@ -33,6 +33,7 @@ class GoodsService extends BaseService
             return false;
         }
         try {
+            $jd = new Jd();
             $skuId = Common::getSkuId($url);
             if (!$skuId) {
                 $this->error('链接转换失败');
@@ -45,19 +46,29 @@ class GoodsService extends BaseService
                 $detail = Goods::query()->where('sku_id', $skuId)->first();
                 $coupon_url = $this->getCouponLink(json_decode($detail['coupon_list'], true));
             }
-            if (!$detail) {
-                $this->error('链接转换失败，没有找到指定商品');
+            if ($detail && $coupon_url) {
+                $url_ret = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
+                    'couponUrl' => $coupon_url,
+                    'materialIds' => (string) $skuId,
+                    'unionId' => $user['union_id']
+                ], 'getcodebyunionid_result');
+                $url_ret = array_values($url_ret['urlList'])[0];
+                if (!$url_ret) {
+                    $this->error('获取推广链接失败，请联系管理员');
+                }
+            } else {
+                //
+                $url_ret = $jd->request('jingdong.service.promotion.wxsq.getCodeByUnionId', [
+                    'proCont' => 1,
+                    'materialIds' => (string) $skuId,
+                    'unionId' => $user['union_id']
+                ], 'getcodebysubunionid_result');
+                $url_ret = array_values($url_ret['urlList'])[0];
+                if (!$url_ret) {
+                    $this->error('获取推广链接失败，请联系管理员');
+                }
             }
-            $jd = new Jd();
-            $url_ret = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
-                'couponUrl' => $coupon_url,
-                'materialIds' => (string) $skuId,
-                'unionId' => $user['union_id']
-            ], 'getcodebyunionid_result');
-            $url_ret = array_values($url_ret['urlList'])[0];
-            if (!$url_ret) {
-                $this->error('获取推广链接失败，请联系管理员');
-            }
+
             $link = str_replace($url, $url_ret, $link);
             return [
                 'link' => $link
