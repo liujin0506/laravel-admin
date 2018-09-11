@@ -52,7 +52,10 @@ class Goods extends Model
 
     public function lists($params, $columns = ['*'])
     {
+        // $columns[] = '(`wl_unit_price` - `discount`) * `commision_ratio_wl` as commision';
         $query = self::query();
+        $columns = implode(',', $columns);
+        $query->selectRaw($columns . ',greatest((`wl_unit_price` - `discount`), `wl_unit_price`) * `commision_ratio_wl` / 100 as commision');
         $per_page = data_get($params, 'per_page', 20);
         $keyword = data_get($params, 'keyword', '');
         if (!empty($keyword)) {
@@ -87,6 +90,7 @@ class Goods extends Model
         $query->where('end_date', '>', date('Y-m-d H:i:s'));
         $query->where('coupon_num', '>', 0);
         $query->where('discount', '>', 0);
+        $query->where('commision_ratio_wl', '>', 0);
         $sort_type = data_get($params, 'sort_type', 'common');
         $sort = data_get($params, 'sort', 'desc');
         $sort = $sort == 'asc' ? 'asc' : 'desc';
@@ -96,7 +100,7 @@ class Goods extends Model
         } elseif ($sort_type == 'price') {
             $query->orderBy('wl_unit_price', $sort);
         } elseif ($sort_type == 'repay') {
-            $query->orderBy('commision_ratio_wl', $sort);
+            $query->orderBy('commision', $sort);
         }
 
         $data = $query->paginate($per_page, $columns);
