@@ -33,13 +33,13 @@ class SyncMenu extends Command
         $buttons = [
             [
                 "type" => "view",
-                "name" => "京选",
+                "name" => "赚钱",
                 "url"  => "http://wx.jhz.bjue.cn/#/home/index"
             ],
             [
                 "type" => "view",
-                "name" => "找货",
-                "url"  => "http://wx.jhz.bjue.cn/#/search/index"
+                "name" => "转链",
+                "url"  => "http://wx.jhz.bjue.cn/#/link/index"
             ],
             [
                 "type" => "view",

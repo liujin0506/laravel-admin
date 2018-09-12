@@ -16,7 +16,7 @@ class Common
 {
     public static function getLink($text)
     {
-        preg_match('/(http|https):\/\/([\w\d\-_]+[\.\w\d\-_]+)[:\d+]?([\/]?[\w\/\.]+?.*)/i', $text, $matches);
+        preg_match('/(http|https):\/\/([\w\d\-_]+[\.\w\d\-_]+)[:\d+]?([\/]?[\w\/\.][a-zA-Z0-9?=]+)/i', $text, $matches);
         return isset($matches['0']) ? $matches[0] : '';
     }
     /**
