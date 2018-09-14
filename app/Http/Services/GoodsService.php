@@ -84,6 +84,15 @@ class GoodsService extends BaseService
         if (empty($params) ) {
             $this->error('数据为空，请重新上传');
         }
+        $new_arr = collect($params)->chunk(30)->toArray();
+        foreach ($new_arr as $value) {
+            $this->_upload($value);
+        }
+        return $params;
+    }
+
+    private function _upload($params)
+    {
         $skuIds = [];
         foreach ($params as $value) {
             array_push($skuIds, $value['skuId']);
@@ -94,11 +103,12 @@ class GoodsService extends BaseService
         if (count($skuIds) > 30) {
             $this->error('为了保证服务器正常运行，单次最多上传30条数据');
         }
-        $jd = new Jd();
+
         $coupon = [];
         if (!empty($params)) foreach ($params as $value) {
             $coupon[$value['skuId']] = isset($value['优惠券链接']) ? $value['优惠券链接'] : '';
         }
+        $jd = new Jd();
         try {
             $details = $jd->request('jingdong.service.promotion.goodsInfo', [
                 'skuIds' => implode(',', $skuIds)
@@ -107,7 +117,7 @@ class GoodsService extends BaseService
             if (!empty($goods)) foreach ($goods as &$value) {
                 foreach ($params as $p) {
                     if ($p['skuId'] == $value['skuId']) {
-                        $value['discount'] = $p['京东价'] - $p['券后价'];
+                        $value['discount'] = ($p['京东价'] - $p['券后价']) > 0 ? ($p['京东价'] - $p['券后价']) : 0;
                         $value['is_recommend'] = (isset($p['是否推荐']) && $p['是否推荐'] == '是') ? 1 : 0;
                         $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
                         $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : null;
@@ -298,8 +308,16 @@ class GoodsService extends BaseService
             $url = array_values($url['urlList'])[0];
 
             if (!$url) {
-                // 尝试重新获取优惠券链接
-                $this->error('获取推广链接失败，请联系管理员');
+                // 尝试重新获取普通推广链接
+                $url = $jd->request('jingdong.service.promotion.wxsq.getCodeByUnionId', [
+                    'proCont' => 1,
+                    'materialIds' => (string) $detail['sku_id'],
+                    'unionId' => $user['union_id']
+                ], 'getcodebysubunionid_result');
+                $url = array_values($url['urlList'])[0];
+                if (!$url) {
+                    $this->error('获取推广链接失败，请联系管理员');
+                }
             }
 
             if (empty($detail['slogan'])) {
