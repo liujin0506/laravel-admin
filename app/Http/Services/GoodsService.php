@@ -122,6 +122,7 @@ class GoodsService extends BaseService
                         $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
                         $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : null;
                         $value['recommend_end'] = isset($p['京选下架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选下架时间'])) : null;
+                        $value['sort'] = isset($p['排序']) ? $p['排序'] : 0;
                     }
                 }
                 if (isset($coupon[$value['skuId']]) && $coupon[$value['skuId']]) {
@@ -132,6 +133,7 @@ class GoodsService extends BaseService
                 $beginTime = $value['recommend_start'] ?: date('Y-m-d H:i:s', $value['startDate'] / 1000);
                 $endTime = $value['recommend_end'] ?: date('Y-m-d H:i:s', $value['endDate'] / 1000);
                 Goods::query()->updateOrCreate(['sku_id' => $value['skuId']], [
+                    'sort' => $value['sort'],
                     'cid' => $value['cid'],
                     'cid2' => $value['cid2'],
                     'cid3' => $value['cid3'],
@@ -309,7 +311,7 @@ class GoodsService extends BaseService
 
             if (!$url) {
                 // 尝试重新获取普通推广链接
-                $url = $jd->request('jingdong.service.promotion.wxsq.getCodeByUnionId', [
+                /*$url = $jd->request('jingdong.service.promotion.wxsq.getCodeByUnionId', [
                     'proCont' => 1,
                     'materialIds' => (string) $detail['sku_id'],
                     'unionId' => $user['union_id']
@@ -317,7 +319,9 @@ class GoodsService extends BaseService
                 $url = array_values($url['urlList'])[0];
                 if (!$url) {
                     $this->error('获取推广链接失败，请联系管理员');
-                }
+                }*/
+		Goods::query()->where('id', $id)->delete();
+		$this->error('商品优惠活动已经下线，试试其他商品吧~');
             }
 
             if (empty($detail['slogan'])) {
