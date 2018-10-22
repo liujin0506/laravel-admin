@@ -202,4 +202,29 @@ class Goods extends Model
             throw new \Exception($e->getMessage());
         }
     }
+
+    public function getRand($columns = ['*'])
+    {
+        // $columns[] = '(`wl_unit_price` - `discount`) * `commision_ratio_wl` as commision';
+        $query = self::query();
+        $columns = implode(',', $columns);
+        $query->selectRaw($columns . ',greatest((`wl_unit_price` - `discount`), `wl_unit_price`) * `commision_ratio_wl` / 100 as commision');
+
+        $query->where('end_date', '>', date('Y-m-d H:i:s'));
+        $query->where('coupon_num', '>', 0);
+        $query->where('discount', '>', 0);
+        $query->where('commision_ratio_wl', '>', 0);
+
+        $query->orderByRaw('rand()');
+
+        $item = $query->first($columns);
+        if ($item->wl_unit_price - $item->discount > 0) {
+            $item->real_price = sprintf("%.2f", $item->wl_unit_price - $item->discount);
+        } else {
+            $item->real_price = sprintf("%.2f", $item->wl_unit_price);
+        }
+        $item->end_day = date('m-d', strtotime($item->end_date));
+        $item->coupon_list = json_decode($item->coupon_list, true);
+        return $item;
+    }
 }

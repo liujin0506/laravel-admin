@@ -293,6 +293,25 @@ class GoodsService extends BaseService
         }
     }
 
+    public function getRand()
+    {
+        $goodModel = new Goods();
+        $detail = $goodModel->getRand()->toArray();
+        $jd = new Jd();
+        $coupon_url = $this->getCouponLink($detail['coupon_list']);
+
+        $url = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
+            'couponUrl' => $coupon_url,
+            'materialIds' => (string) $detail['sku_id'],
+            'unionId' => '1000895896'
+        ], 'getcodebyunionid_result');
+        $url = array_values($url['urlList'])[0];
+        if (!$url) {
+            $url = $this->getRand();
+        }
+        return $url;
+    }
+
     public function spread($id, $openid, $params)
     {
         $app = app('wechat.official_account');

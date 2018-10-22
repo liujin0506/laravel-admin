@@ -26,6 +26,12 @@ Route::group(['prefix' => 'link',  'namespace' => 'Link', 'middleware' => 'auth.
     Route::post('send_wechat', "LinkController@send_wechat");
 });
 
+Route::get('get_coupon', function () {
+    $service = new \App\Http\Services\GoodsService();
+    $url = $service->getRand();
+    header("Location:" . $url);
+});
+
 Route::get('poster', function (\Illuminate\Http\Request $request) {
      $params = $request->all();
      if (!isset($params['thumb'])) {
