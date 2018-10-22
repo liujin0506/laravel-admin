@@ -32,6 +32,15 @@ Route::get('get_coupon', function () {
     header("Location:" . $url);
 });
 
+Route::get('get_url', function () {
+    $service = new \App\Http\Services\GoodsService();
+    $url = $service->getRand();
+    return [
+        'state' => true,
+        'url' => $url
+    ];
+});
+
 Route::get('poster', function (\Illuminate\Http\Request $request) {
      $params = $request->all();
      if (!isset($params['thumb'])) {
