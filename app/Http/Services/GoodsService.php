@@ -84,7 +84,7 @@ class GoodsService extends BaseService
         if (empty($params) ) {
             $this->error('数据为空，请重新上传');
         }
-        $new_arr = collect($params)->chunk(30)->toArray();
+        $new_arr = collect($params)->chunk(5)->toArray();
         foreach ($new_arr as $value) {
             $this->_upload($value);
         }
@@ -100,8 +100,8 @@ class GoodsService extends BaseService
         if (count($skuIds) == 0) {
             $this->error('数据格式不正确，请重新上传');
         }
-        if (count($skuIds) > 30) {
-            $this->error('为了保证服务器正常运行，单次最多上传30条数据');
+        if (count($skuIds) > 5) {
+            $this->error('为了保证服务器正常运行，单次最多上传5条数据');
         }
 
         $coupon = [];
@@ -118,6 +118,8 @@ class GoodsService extends BaseService
                 foreach ($params as $p) {
                     if ($p['skuId'] == $value['skuId']) {
                         $value['discount'] = ($p['京东价'] - $p['券后价']) > 0 ? ($p['京东价'] - $p['券后价']) : 0;
+                        $value['unitPrice'] = $p['京东价'];
+                        $value['wlUnitPrice'] = $p['京东价'];
                         $value['is_recommend'] = (isset($p['是否推荐']) && $p['是否推荐'] == '是') ? 1 : 0;
                         $value['slogan'] = isset($p['自定义文案']) ? $p['自定义文案'] : '';
                         $value['recommend_start'] = isset($p['京选上架时间']) ? date('Y-m-d H:i:s', strtotime($p['京选上架时间'])) : null;
@@ -381,7 +383,7 @@ class GoodsService extends BaseService
                         'url' => $url
                     ];
                     $client = new \GuzzleHttp\Client();
-                    $data = $client->post('http://127.0.0.1:7777/html2Image', [
+                    $data = $client->post('http://127.0.0.1:5678/html2Image', [
                         'header' => [
                             'Content-Type' => 'application/x-www-form-urlencoded'
                         ],
