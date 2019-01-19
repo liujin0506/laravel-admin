@@ -32,6 +32,12 @@ Route::get('get_coupon', function () {
     header("Location:" . $url);
 });
 
+Route::get('get_coupon_api', function () {
+    $service = new \App\Http\Services\GoodsService();
+    return $service->getRandJson();
+});
+
+
 Route::get('get_url', function () {
     $service = new \App\Http\Services\GoodsService();
     $url = $service->getRand();

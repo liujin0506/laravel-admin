@@ -314,6 +314,39 @@ class GoodsService extends BaseService
         return $url;
     }
 
+    public function getRandJson()
+    {
+        $goodModel = new Goods();
+        $detail = $goodModel->getRand()->toArray();
+        $jd = new Jd();
+        $coupon = $this->getCoupon($detail['coupon_list']);
+
+        $url = $jd->request('jingdong.service.promotion.coupon.getCodeByUnionId', [
+            'couponUrl' => $coupon['link'],
+            'materialIds' => (string) $detail['sku_id'],
+            'unionId' => '1000895896'
+        ], 'getcodebyunionid_result');
+        $url = array_values($url['urlList'])[0];
+
+        $data = [
+            'goods' => [
+                'id' => $detail['id'],
+                'sku_id' => $detail['sku_id'],
+                'goods_name' => $detail['goods_name'],
+                'img_url' => $detail['img_url'],
+                'wl_unit_price' => $detail['wl_unit_price'],
+                'material_url' => $detail['material_url'],
+                'discount' => $detail['discount']
+            ],
+            'conpon' => $coupon,
+            'url' => $url
+        ];
+        if (!$url) {
+            $data = $this->getRandJson();
+        }
+        return $data;
+    }
+
     public function spread($id, $openid, $params)
     {
         $app = app('wechat.official_account');
@@ -341,8 +374,8 @@ class GoodsService extends BaseService
                 if (!$url) {
                     $this->error('获取推广链接失败，请联系管理员');
                 }*/
-		Goods::query()->where('id', $id)->delete();
-		$this->error('商品优惠活动已经下线，试试其他商品吧~');
+		        Goods::query()->where('id', $id)->delete();
+		        $this->error('商品优惠活动已经下线，试试其他商品吧~');
             }
 
             if (empty($detail['slogan'])) {
@@ -428,5 +461,17 @@ class GoodsService extends BaseService
             }
         }
         return $link ? $this->_getUrl($link) : '';
+    }
+
+    private function getCoupon($coupons)
+    {
+        $coupon = '';
+        if (!empty($coupons)) foreach ($coupons as $c) {
+            if (!empty($c['link'])) {
+                $c['link'] = $this->_getUrl($c['link']);
+                $coupon = $c;
+            }
+        }
+        return $coupon;
     }
 }
